@@ -10,19 +10,12 @@ import java.util.List;
 public class CodecManager {
     private final static Logger logger = Logger.getLogger(CodecManager.class);
 
-    // TODO: refactor all codec instances to singleton?
-    private static AbstractNmeaCodec createCodec(String type) {
-        if (type.equals(NmeaConst.MSG_TYPE_GGA)) {
-            return new GgaNmeaCodec();
-        } else if (type.equals(NmeaConst.MSG_TYPE_GLL)) {
-            return new GllNmeaCodec();
-        } else if (type.equals(NmeaConst.MSG_TYPE_RMC)) {
-            return new RmcNmeaCodec();
-        } else if (type.equals(NmeaConst.MSG_TYPE_VDM)) {
-            return new VdmNmeaCodec();
+    private static AbstractNmeaCodec createCodec(String type) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        if (type.length() != 3) {
+            throw new IllegalArgumentException("type must be 3-char long");
         }
-
-        throw new IllegalArgumentException("Unsupported message type: " + type);
+        String name = "com.frankwu.nmea." + type.substring(0, 1) + type.substring(1).toLowerCase() + "NmeaCodec";
+        return (AbstractNmeaCodec) Class.forName(name).newInstance();
     }
 
     public void decode(String content) throws Exception {

@@ -35,7 +35,7 @@ public class CodecManagerTest {
         manager.decode(content);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ClassNotFoundException.class)
     public void decodeInvalidMessage() throws Exception {
         String content = "$GPAAM,A,A,0.10,N,WPTNME*32\r\n$GPRMC,092751.000,A,5321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45\r\n";
         CodecManager manager = new CodecManager();
