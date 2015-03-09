@@ -2,7 +2,6 @@ package com.frankwu.nmea;
 
 import org.apache.log4j.Logger;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,8 +20,8 @@ public class VdmNmeaCodec extends AbstractNmeaCodec {
         Tokenizer tokenizer = new Tokenizer(rawContent, NmeaConst.FIELD_SEP);
 
         VdmNmeaObject object = new VdmNmeaObject(tokenizer.nextToken());
-        object.setTotalNumber(Integer.parseInt(tokenizer.nextToken()));
-        object.setCurrentNumber(Integer.parseInt(tokenizer.nextToken()));
+        object.setTotalSentenceNumber(Integer.parseInt(tokenizer.nextToken()));
+        object.setCurrentSentenceNumber(Integer.parseInt(tokenizer.nextToken()));
         object.setSequenceNumber(tokenizer.nextToken());
         object.setChannel(tokenizer.nextToken());
 

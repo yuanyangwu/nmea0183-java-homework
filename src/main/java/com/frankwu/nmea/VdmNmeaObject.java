@@ -4,8 +4,8 @@ package com.frankwu.nmea;
  * Created by wuf2 on 2/22/2015.
  */
 public class VdmNmeaObject extends AbstractNmeaObject {
-    private int totalNumber;
-    private int currentNumber;
+    private int totalSentenceNumber;
+    private int currentSentenceNumber;
     private String sequenceNumber;
     private String channel;
     private String encodedMessage;
@@ -39,8 +39,8 @@ public class VdmNmeaObject extends AbstractNmeaObject {
     @Override
     public String toString() {
         return super.toString()
-                + ", totalNumber=" + totalNumber
-                + ", currentNumber=" + currentNumber
+                + ", totalSentenceNumber=" + totalSentenceNumber
+                + ", currentSentenceNumber=" + currentSentenceNumber
                 + ", sequenceNumber=" + sequenceNumber
                 + ", channel=" + channel
                 + ", encodedMessage=" + encodedMessage
@@ -63,20 +63,20 @@ public class VdmNmeaObject extends AbstractNmeaObject {
                 + ", communicationState=" + communicationState;
     }
 
-    public int getTotalNumber() {
-        return totalNumber;
+    public int getTotalSentenceNumber() {
+        return totalSentenceNumber;
     }
 
-    public void setTotalNumber(int totalNumber) {
-        this.totalNumber = totalNumber;
+    public void setTotalSentenceNumber(int totalSentenceNumber) {
+        this.totalSentenceNumber = totalSentenceNumber;
     }
 
-    public int getCurrentNumber() {
-        return currentNumber;
+    public int getCurrentSentenceNumber() {
+        return currentSentenceNumber;
     }
 
-    public void setCurrentNumber(int currentNumber) {
-        this.currentNumber = currentNumber;
+    public void setCurrentSentenceNumber(int currentSentenceNumber) {
+        this.currentSentenceNumber = currentSentenceNumber;
     }
 
     public String getSequenceNumber() {
