@@ -2,15 +2,30 @@ package com.frankwu.nmea;
 
 import org.apache.log4j.Logger;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by wuf2 on 2/22/2015.
  */
 public class VdmNmeaCodec extends AbstractNmeaCodec {
     private final static Logger logger = Logger.getLogger(VdmNmeaCodec.class);
+    static public final long CHECK_INTERVAL = 500;
+    static public final long INIT_DELAY = 200;
+    private Timer checkTimer;
 
     private SentenceStore sentenceStore = new SentenceStore();
+
+    public VdmNmeaCodec() {
+        checkTimer = new Timer(true);
+        checkTimer.scheduleAtFixedRate(new TimerTask() {
+
+            @Override
+            public void run() {
+                check();
+            }
+
+        }, INIT_DELAY, CHECK_INTERVAL);
+    }
 
     @Override
     public void decode(String content) {
@@ -38,15 +53,33 @@ public class VdmNmeaCodec extends AbstractNmeaCodec {
         VdmNmeaObject object = sentenceStore.addItem(sentence.getSequenceNumber(), sentence);
 
         if (object != null) {
-            object.decodeEncodedMessage();
-            logger.debug(object);
-            setChanged();
-            notifyObservers(object);
+            try {
+                object.decodeEncodedMessage();
+                logger.debug(object);
+                setChanged();
+                notifyObservers(object);
+            } catch (Exception e) {
+                logger.error("decodeEncodeMessage fail: object=" + object + ", exception=" + e);
+            }
         }
     }
 
     @Override
     public List<String> encode(AbstractNmeaObject obj) {
         throw new IllegalArgumentException("Not implemented");
+    }
+
+    protected void check() {
+        Date now = Calendar.getInstance().getTime();
+        List<VdmNmeaObject> objects = sentenceStore.getExpiredItems(now, (int) CHECK_INTERVAL);
+
+        for (VdmNmeaObject object : objects) {
+            try {
+                object.decodeEncodedMessage();
+            }
+            catch (Exception e) {
+                logger.error("decodeEncodeMessage fail: object=" + object + ", exception=" + e);
+            }
+        }
     }
 }

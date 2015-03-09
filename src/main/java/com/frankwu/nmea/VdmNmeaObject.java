@@ -1,6 +1,7 @@
 package com.frankwu.nmea;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -8,6 +9,8 @@ import java.util.List;
  */
 public class VdmNmeaObject extends AbstractNmeaObject {
     private List<VdmNmeaSentence> sentences = new ArrayList<VdmNmeaSentence>();
+
+    Date receivedDate;
 
     private int totalSentenceNumber;
     private int currentSentenceNumber;
@@ -35,10 +38,12 @@ public class VdmNmeaObject extends AbstractNmeaObject {
 
     public VdmNmeaObject() {
         super(NmeaConst.MSG_TYPE_VDM);
+        receivedDate = new Date();
     }
 
     public VdmNmeaObject(String objType) {
         super(objType);
+        receivedDate = new Date();
     }
 
     @Override
@@ -73,39 +78,46 @@ public class VdmNmeaObject extends AbstractNmeaObject {
         currentSentenceNumber = sentence.getCurrentSentenceNumber();
         sequenceNumber = sentence.getSequenceNumber();
         channel = sentence.getChannel();
-        sentences.add((VdmNmeaSentence)sentence);
+        sentences.add((VdmNmeaSentence) sentence);
+        receivedDate = new Date();
     }
 
     public void decodeEncodedMessage() {
-        StringBuffer sb = new StringBuffer();
-        for (VdmNmeaSentence sentence : sentences) {
-            sb.append(sentence.getEncodedMessage());
-            filler = sentence.getFiller();
-        }
-        encodedMessage = sb.toString();
+        synchronized (this) {
+            StringBuffer sb = new StringBuffer();
+            for (VdmNmeaSentence sentence : sentences) {
+                sb.append(sentence.getEncodedMessage());
+                filler = sentence.getFiller();
+            }
+            encodedMessage = sb.toString();
 
-        Tokenizer tokenizer = new Tokenizer(encodedMessage, NmeaConst.FIELD_SEP);
-        Nmea6bitString s = new Nmea6bitString(encodedMessage + filler);
-        this.setMessageId(s.next(6));
-        if (this.getMessageId() != 1) {
-//            throw new IllegalArgumentException("Unsupported VDM message Id: " + this.getMessageId());
-        }
+            Tokenizer tokenizer = new Tokenizer(encodedMessage, NmeaConst.FIELD_SEP);
+            Nmea6bitString s = new Nmea6bitString(encodedMessage + filler);
+            setMessageId(s.next(6));
+            if (getMessageId() != 1) {
+                throw new IllegalArgumentException("Unsupported VDM message Id: " + getMessageId());
+            }
 
-        this.setRepeatIndicator(s.next(2));
-        this.setUserId(s.next(30));
-        this.setNavigationalStatus(s.next(4));
-        this.setRateOfTurn(s.next(8));
-        this.setSog(s.next(10));
-        this.setPositionAccuracy(s.next(1));
-        this.setLongitude(s.next(28));
-        this.setLatitude(s.next(27));
-        this.setCog(s.next(12));
-        this.setTrueHeading(s.next(9));
-        this.setTimeStamp(s.next(6));
-        this.setManoeuvreIndicator(s.next(2));
-        this.setSpare(s.next(3));
-        this.setRaimFlag(s.next(1));
-        this.setCommunicationState(s.next(19));
+            setRepeatIndicator(s.next(2));
+            setUserId(s.next(30));
+            setNavigationalStatus(s.next(4));
+            setRateOfTurn(s.next(8));
+            setSog(s.next(10));
+            setPositionAccuracy(s.next(1));
+            setLongitude(s.next(28));
+            setLatitude(s.next(27));
+            setCog(s.next(12));
+            setTrueHeading(s.next(9));
+            setTimeStamp(s.next(6));
+            setManoeuvreIndicator(s.next(2));
+            setSpare(s.next(3));
+            setRaimFlag(s.next(1));
+            setCommunicationState(s.next(19));
+        }
+    }
+
+    public Date getReceivedDate() {
+        return receivedDate;
     }
 
     public int getTotalSentenceNumber() {

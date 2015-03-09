@@ -1,9 +1,6 @@
 package com.frankwu.nmea;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by wuf2 on 3/9/2015.
@@ -28,12 +25,11 @@ public class SentenceStore {
 
         synchronized (this) {
 
-            for (Integer key : storedSentences.keySet()) {
-
-                // TODO if (storedSentences.get(key).getReceiveDate().getTime() < time) {
-                    keys.add(key);
-                    result.add(storedSentences.get(key));
-                //}
+            for (Map.Entry<Integer, VdmNmeaObject> entry : storedSentences.entrySet()) {
+                if (entry.getValue().getReceivedDate().getTime() < time) {
+                    keys.add(entry.getKey());
+                    result.add(entry.getValue());
+                }
             }
 
             for (Integer key : keys) {

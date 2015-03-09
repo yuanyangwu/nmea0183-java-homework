@@ -44,4 +44,23 @@ public class VdmNmeaCodecTest {
 
         //content = "!AIVDM,1,1,2,A,569r?FP000000000000P4V1QDr3737T00000000o0p8222vbl24j0CQp20B@0000000000<,2*2A";
     }
+
+    @Test
+    public void decodeTimer() {
+        VdmNmeaCodec codec = new VdmNmeaCodec();
+        codec.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                System.out.println(arg);
+            }
+        });
+
+        try {
+            codec.decode("!AIVDM,2,1,,B,16:>>s5Oh08dLO,0\r\n");
+            Thread.sleep(800);
+            codec.decode("!AIVDM,2,2,,B,8AsMAVqptj0@>p,0\r\n");
+        } catch (Exception e) {
+            System.out.println("test decode timer: " + e);
+        }
+    }
 }
