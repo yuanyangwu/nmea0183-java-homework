@@ -1,12 +1,17 @@
 package com.frankwu.nmea;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by wuf2 on 2/22/2015.
  */
 public class VdmNmeaObject extends AbstractNmeaObject {
+    private List<VdmNmeaSentence> sentences = new ArrayList<VdmNmeaSentence>();
+
     private int totalSentenceNumber;
     private int currentSentenceNumber;
-    private String sequenceNumber;
+    private int sequenceNumber;
     private String channel;
     private String encodedMessage;
     private String filler;
@@ -63,6 +68,46 @@ public class VdmNmeaObject extends AbstractNmeaObject {
                 + ", communicationState=" + communicationState;
     }
 
+    public void concatenate(VdmNmeaSentence sentence) {
+        totalSentenceNumber = sentence.getTotalSentenceNumber();
+        currentSentenceNumber = sentence.getCurrentSentenceNumber();
+        sequenceNumber = sentence.getSequenceNumber();
+        channel = sentence.getChannel();
+        sentences.add((VdmNmeaSentence)sentence);
+    }
+
+    public void decodeEncodedMessage() {
+        StringBuffer sb = new StringBuffer();
+        for (VdmNmeaSentence sentence : sentences) {
+            sb.append(sentence.getEncodedMessage());
+            filler = sentence.getFiller();
+        }
+        encodedMessage = sb.toString();
+
+        Tokenizer tokenizer = new Tokenizer(encodedMessage, NmeaConst.FIELD_SEP);
+        Nmea6bitString s = new Nmea6bitString(encodedMessage + filler);
+        this.setMessageId(s.next(6));
+        if (this.getMessageId() != 1) {
+//            throw new IllegalArgumentException("Unsupported VDM message Id: " + this.getMessageId());
+        }
+
+        this.setRepeatIndicator(s.next(2));
+        this.setUserId(s.next(30));
+        this.setNavigationalStatus(s.next(4));
+        this.setRateOfTurn(s.next(8));
+        this.setSog(s.next(10));
+        this.setPositionAccuracy(s.next(1));
+        this.setLongitude(s.next(28));
+        this.setLatitude(s.next(27));
+        this.setCog(s.next(12));
+        this.setTrueHeading(s.next(9));
+        this.setTimeStamp(s.next(6));
+        this.setManoeuvreIndicator(s.next(2));
+        this.setSpare(s.next(3));
+        this.setRaimFlag(s.next(1));
+        this.setCommunicationState(s.next(19));
+    }
+
     public int getTotalSentenceNumber() {
         return totalSentenceNumber;
     }
@@ -79,11 +124,11 @@ public class VdmNmeaObject extends AbstractNmeaObject {
         this.currentSentenceNumber = currentSentenceNumber;
     }
 
-    public String getSequenceNumber() {
+    public int getSequenceNumber() {
         return sequenceNumber;
     }
 
-    public void setSequenceNumber(String sequenceNumber) {
+    public void setSequenceNumber(int sequenceNumber) {
         this.sequenceNumber = sequenceNumber;
     }
 
