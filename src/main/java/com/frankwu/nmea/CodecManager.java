@@ -2,20 +2,32 @@ package com.frankwu.nmea;
 
 import org.apache.log4j.Logger;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by wuf2 on 2/13/2015.
  */
-public class CodecManager {
+public class CodecManager extends Observable implements Observer {
     private final static Logger logger = Logger.getLogger(CodecManager.class);
+    private HashMap<String, AbstractNmeaCodec> codecs = new HashMap<>();
 
-    private static AbstractNmeaCodec createCodec(String type) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public AbstractNmeaCodec createCodec(String type) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         if (type.length() != 3) {
             throw new IllegalArgumentException("type must be 3-char long");
         }
-        String name = "com.frankwu.nmea." + type.substring(0, 1) + type.substring(1).toLowerCase() + "NmeaCodec";
-        return (AbstractNmeaCodec) Class.forName(name).newInstance();
+
+        AbstractNmeaCodec codec = codecs.get(type);
+        if (codec == null) {
+            String name = "com.frankwu.nmea." + type.substring(0, 1) + type.substring(1).toLowerCase() + "NmeaCodec";
+            codec = (AbstractNmeaCodec) Class.forName(name).newInstance();
+            codec.addObserver(this);
+            codecs.put(type, codec);
+        }
+
+        return codec;
     }
 
     public void decode(String content) throws Exception {
@@ -45,5 +57,12 @@ public class CodecManager {
             logger.error("encode() message fail: " + obj);
             throw e;
         }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        logger.info("parsed object: " + arg);
+        setChanged();
+        notifyObservers(arg);
     }
 }

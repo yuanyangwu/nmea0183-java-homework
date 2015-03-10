@@ -19,6 +19,12 @@ public class CodecManagerTest {
     public void decodeRmcMessage() throws Exception {
         String content = "$GPRMC,092751.000,A,5321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45\r\n";
         CodecManager manager = new CodecManager();
+        manager.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                System.out.println(arg);
+            }
+        });
         manager.decode(content);
     }
 
