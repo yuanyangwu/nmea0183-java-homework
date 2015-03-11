@@ -1,5 +1,7 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.MoreObjects;
+
 /**
  * Created by wuf2 on 2/21/2015.
  */
@@ -27,19 +29,21 @@ public class RmcNmeaObject extends AbstractNmeaObject {
 
     @Override
     public String toString() {
-        return super.toString()
-                + ", utcTime=" + utcTime
-                + ", valid=" + valid
-                + ", latitude=" + latitude
-                + ", directionOfLatitude=" + directionOfLatitude
-                + ", longitude=" + longitude
-                + ", directionOfLongitude=" + directionOfLongitude
-                + ", speedInKnot=" + speedInKnot
-                + ", trackAngleInDegree=" + trackAngleInDegree
-                + ", date=" + date
-                + ", magneticVariationInDegree=" + magneticVariationInDegree
-                + ", directionOfVariation=" + directionOfVariation
-                + ", mode=" + mode;
+        return MoreObjects.toStringHelper(this)
+                .addValue(super.toString())
+                .add("utcTime", utcTime)
+                .add("valid", valid)
+                .add("latitude", latitude)
+                .add("directionOfLatitude", directionOfLatitude)
+                .add("longitude", longitude)
+                .add("directionOfLongitude", directionOfLongitude)
+                .add("speedInKnot", speedInKnot)
+                .add("trackAngleInDegree", trackAngleInDegree)
+                .add("date", date)
+                .add("magneticVariationInDegree", magneticVariationInDegree)
+                .add("directionOfVariation", directionOfVariation)
+                .add("mode", mode)
+                .toString();
     }
 
     public String getUtcTime() {

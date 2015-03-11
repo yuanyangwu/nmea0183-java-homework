@@ -1,5 +1,7 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.MoreObjects;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -48,29 +50,31 @@ public class VdmNmeaObject extends AbstractNmeaObject {
 
     @Override
     public String toString() {
-        return super.toString()
-                + ", totalSentenceNumber=" + totalSentenceNumber
-                + ", currentSentenceNumber=" + currentSentenceNumber
-                + ", sequenceNumber=" + sequenceNumber
-                + ", channel=" + channel
-                + ", encodedMessage=" + encodedMessage
-                + ", filler=" + filler
-                + ", messageId=" + messageId
-                + ", repeatIndicator=" + repeatIndicator
-                + ", userId=" + userId
-                + ", navigationalStatus=" + navigationalStatus
-                + ", rateOfTurn=" + rateOfTurn
-                + ", sog=" + sog
-                + ", positionAccuracy=" + positionAccuracy
-                + ", longitude=" + longitude
-                + ", latitude=" + latitude
-                + ", cog=" + cog
-                + ", trueHeading=" + trueHeading
-                + ", timeStamp=" + timeStamp
-                + ", manoeuvreIndicator=" + manoeuvreIndicator
-                + ", spare=" + spare
-                + ", raimFlag=" + raimFlag
-                + ", communicationState=" + communicationState;
+        return MoreObjects.toStringHelper(this)
+                .addValue(super.toString())
+                .add("totalSentenceNumber", totalSentenceNumber)
+                .add("currentSentenceNumber", currentSentenceNumber)
+                .add("sequenceNumber", sequenceNumber)
+                .add("channel", channel)
+                .add("encodedMessage", encodedMessage)
+                .add("filler", filler)
+                .add("messageId", messageId)
+                .add("repeatIndicator", repeatIndicator)
+                .add("userId", userId)
+                .add("navigationalStatus", navigationalStatus)
+                .add("rateOfTurn", rateOfTurn)
+                .add("sog", sog)
+                .add("positionAccuracy", positionAccuracy)
+                .add("longitude", longitude)
+                .add("latitude", latitude)
+                .add("cog", cog)
+                .add("trueHeading", trueHeading)
+                .add("timeStamp", timeStamp)
+                .add("manoeuvreIndicator", manoeuvreIndicator)
+                .add("spare", spare)
+                .add("raimFlag", raimFlag)
+                .add("communicationState", communicationState)
+                .toString();
     }
 
     public void concatenate(VdmNmeaSentence sentence) {

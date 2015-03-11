@@ -1,5 +1,7 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.MoreObjects;
+
 /**
  * Created by wuf2 on 2/21/2015.
  */
@@ -29,21 +31,23 @@ public class GgaNmeaObject extends AbstractNmeaObject {
 
     @Override
     public String toString() {
-        return super.toString()
-                + ", utcTime=" + utcTime
-                + ", latitude=" + latitude
-                + ", directionOfLatitude=" + directionOfLatitude
-                + ", longitude=" + longitude
-                + ", directionOfLongitude=" + directionOfLongitude
-                + ", gpsQualityIndicator=" + gpsQualityIndicator
-                + ", numberOfSVs=" + numberOfSVs
-                + ", hdop=" + hdop
-                + ", orthometricHeight=" + orthometricHeight
-                + ", unitOfOrthometricHeight=" + unitOfOrthometricHeight
-                + ", geoidSeparation=" + geoidSeparation
-                + ", unitOfGeoidSeparation=" + unitOfGeoidSeparation
-                + ", ageOfDifferentialGpsDataRecord=" + ageOfDifferentialGpsDataRecord
-                + ", referenceStationID=" + referenceStationID;
+        return MoreObjects.toStringHelper(this)
+                .addValue(super.toString())
+                .add("utcTime", utcTime)
+                .add("latitude", latitude)
+                .add("directionOfLatitude", directionOfLatitude)
+                .add("longitude", longitude)
+                .add("directionOfLongitude", directionOfLongitude)
+                .add("gpsQualityIndicator", gpsQualityIndicator)
+                .add("numberOfSVs", numberOfSVs)
+                .add("hdop", hdop)
+                .add("orthometricHeight", orthometricHeight)
+                .add("unitOfOrthometricHeight", unitOfOrthometricHeight)
+                .add("geoidSeparation", geoidSeparation)
+                .add("unitOfGeoidSeparation", unitOfGeoidSeparation)
+                .add("ageOfDifferentialGpsDataRecord", ageOfDifferentialGpsDataRecord)
+                .add("referenceStationID", referenceStationID)
+                .toString();
     }
 
     public String getUtcTime() {

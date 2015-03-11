@@ -1,5 +1,7 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.MoreObjects;
+
 /**
  * Created by wuf2 on 2/21/2015.
  */
@@ -22,14 +24,16 @@ public class GllNmeaObject extends AbstractNmeaObject {
 
     @Override
     public String toString() {
-        return super.toString()
-                + ", latitude=" + latitude
-                + ", directionOfLatitude=" + directionOfLatitude
-                + ", longitude=" + longitude
-                + ", directionOfLongitude=" + directionOfLongitude
-                + ", utcTime=" + utcTime
-                + ", dataValid=" + dataValid
-                + ", modeIndicator=" + modeIndicator;
+        return MoreObjects.toStringHelper(this)
+                .addValue(super.toString())
+                .add("latitude", latitude)
+                .add("directionOfLatitude", directionOfLatitude)
+                .add("longitude", longitude)
+                .add("directionOfLongitude", directionOfLongitude)
+                .add("utcTime", utcTime)
+                .add("dataValid", dataValid)
+                .add("modeIndicator", modeIndicator)
+                .toString();
     }
 
     public String getLatitude() {
