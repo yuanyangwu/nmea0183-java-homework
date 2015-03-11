@@ -2,9 +2,7 @@ package com.frankwu.nmea;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 /**
  * Created by wuf2 on 2/28/2015.
@@ -12,8 +10,8 @@ import static org.junit.Assert.assertThat;
 public class NmeaCodecUtilTest {
     @Test
     public void makeRawString() {
-        assertThat(NmeaCodecUtil.makeRawContent("$AIGAA,B,C*12\r\n"), equalTo("AIGAA,B,C"));
-        assertThat(NmeaCodecUtil.makeRawContent("$AIGAA,B,C*12"), equalTo("AIGAA,B,C"));
+        assertEquals("AIGAA,B,C", NmeaCodecUtil.makeRawContent("$AIGAA,B,C*12\r\n"));
+        assertEquals("AIGAA,B,C", NmeaCodecUtil.makeRawContent("$AIGAA,B,C*12"));
     }
 
     @Test

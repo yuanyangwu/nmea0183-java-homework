@@ -2,12 +2,13 @@ package com.frankwu.nmea;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by wuf2 on 2/21/2015.
@@ -23,6 +24,9 @@ public class GllNmeaCodecTest {
             }
         });
 
+        Observer mockObserver = mock(Observer.class);
+        codec.addObserver(mockObserver);
+
         String content = "$GPGLL,3751.65,S,14507.36,E*77\r\n";
         codec.decode(content);
 
@@ -31,6 +35,8 @@ public class GllNmeaCodecTest {
 
         content = "$GPGLL,5133.81,N,00042.25,W*75\r\n";
         codec.decode(content);
+
+        verify(mockObserver, times(3)).update(eq(codec), any());
     }
 
     @Test
@@ -40,9 +46,9 @@ public class GllNmeaCodecTest {
         codec.addObserver(new Observer() {
             @Override
             public void update(Observable o, Object arg) {
-                AbstractNmeaObject obj = (AbstractNmeaObject)arg;
+                AbstractNmeaObject obj = (AbstractNmeaObject) arg;
                 List<String> contents = codec.encode(obj);
-                assertThat(contents.get(0), equalTo(content));
+                assertEquals(Arrays.asList(content), contents);
             }
         });
 

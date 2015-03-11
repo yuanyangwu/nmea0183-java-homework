@@ -2,11 +2,10 @@ package com.frankwu.nmea;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -17,18 +16,15 @@ public class BufferTest {
     public void appendContent() {
         Buffer buffer = new Buffer();
         List<String> contents = buffer.appendContent("AA\r\nBB\r\nCC");
-        assertEquals(2, contents.size());
-        assertThat(contents.get(0), equalTo("AA"));
-        assertThat(contents.get(1), equalTo("BB"));
-        assertThat(buffer.toString(), equalTo("CC"));
+        assertEquals(Arrays.asList("AA", "BB"), contents);
+        assertEquals("CC", buffer.toString());
 
         contents = buffer.appendContent("DD\r");
         assertTrue(contents.isEmpty());
-        assertThat(buffer.toString(), equalTo("CCDD\r"));
+        assertEquals("CCDD\r", buffer.toString());
 
         contents = buffer.appendContent("\n");
-        assertEquals(1, contents.size());
-        assertThat(contents.get(0), equalTo("CCDD"));
+        assertEquals(Arrays.asList("CCDD"), contents);
         assertTrue(buffer.toString().isEmpty());
     }
 }
