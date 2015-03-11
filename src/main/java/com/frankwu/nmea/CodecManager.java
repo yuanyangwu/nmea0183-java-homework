@@ -1,5 +1,6 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.Preconditions;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
@@ -16,9 +17,8 @@ public class CodecManager extends Observable implements Observer {
     private Buffer buffer = new Buffer();
 
     public AbstractNmeaCodec createCodec(String type) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        if (type.length() != 3) {
-            throw new IllegalArgumentException("type must be 3-char long");
-        }
+        Preconditions.checkNotNull(type);
+        Preconditions.checkArgument(type.length() == 3, "type length is expected to be 3 but " + type.length());
 
         AbstractNmeaCodec codec = codecs.get(type);
         if (codec == null) {
@@ -32,6 +32,8 @@ public class CodecManager extends Observable implements Observer {
     }
 
     public void decode(String content) throws Exception {
+        Preconditions.checkNotNull(content, "content is null");
+
         List<String> contents = buffer.appendContent(content);
         for (String msg : contents) {
             if (NmeaMessageValidator.isValid(msg)) {
@@ -52,6 +54,7 @@ public class CodecManager extends Observable implements Observer {
 
     public List<String> encode(AbstractNmeaObject obj) throws Exception {
         try {
+            Preconditions.checkNotNull(obj);
             String objType = obj.getObjType();
             AbstractNmeaCodec codec = createCodec(objType.substring(objType.length() - 3));
             return codec.encode(obj);

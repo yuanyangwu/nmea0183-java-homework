@@ -1,5 +1,7 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.Preconditions;
+
 import java.util.*;
 
 /**
@@ -18,8 +20,8 @@ public class SentenceStore {
         List<VdmNmeaObject> result = new ArrayList<>();
         List<Integer> keys = new ArrayList<>();
 
-        if (checkTime == null || milliSeconds < 0)
-            return result;
+        Preconditions.checkNotNull(checkTime);
+        Preconditions.checkArgument(milliSeconds >= 0, "milliSeconds is expected to >=0 but " + milliSeconds);
 
         long time = checkTime.getTime() - milliSeconds;
 
@@ -43,6 +45,7 @@ public class SentenceStore {
 
 
     public VdmNmeaObject addItem(Integer sequenceNumber, VdmNmeaSentence sentence) {
+        Preconditions.checkNotNull(sentence);
 
         if (sentence.getTotalSentenceNumber() == 1) {
             VdmNmeaObject object = new VdmNmeaObject(sentence.getObjType());

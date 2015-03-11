@@ -1,5 +1,6 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.Preconditions;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -29,9 +30,7 @@ public class VdmNmeaCodec extends AbstractNmeaCodec {
 
     @Override
     public void decode(String content) {
-        if (!NmeaMessageValidator.isValid(content, NmeaConst.MSG_TYPE_VDM)) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(NmeaMessageValidator.isValid(content, NmeaConst.MSG_TYPE_VDM));
 
         String rawContent = NmeaCodecUtil.makeRawContent(content);
         Tokenizer tokenizer = new Tokenizer(rawContent, NmeaConst.FIELD_SEP);

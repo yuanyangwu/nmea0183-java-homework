@@ -1,11 +1,15 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Created by wuf2 on 2/21/2015.
  */
 public class NmeaCodecUtil {
     // remove start char, end char, checksum
     public static String makeRawContent(String content) {
+        Preconditions.checkNotNull(content);
+
         final int beginIndex = 1;
         int endIndex = content.indexOf(NmeaConst.CHECKSUM_SEP);
         if (endIndex == -1) {
@@ -18,6 +22,8 @@ public class NmeaCodecUtil {
     }
 
     public static String calcCheckSum(String content) {
+        Preconditions.checkNotNull(content);
+
         int sum = 0;
         for (byte b: content.getBytes()) {
             sum ^= b;

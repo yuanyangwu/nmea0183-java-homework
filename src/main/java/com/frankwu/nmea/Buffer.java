@@ -1,5 +1,7 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +17,8 @@ public class Buffer {
     }
 
     public List<String> appendContent(String content) {
+        Preconditions.checkNotNull(content, "content is null");
+
         ArrayList<String> result = new ArrayList<>();
         sb.append(content);
         String str = sb.toString();

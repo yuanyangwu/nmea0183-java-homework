@@ -1,5 +1,6 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.Preconditions;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
@@ -16,9 +17,7 @@ public class GllNmeaCodec extends AbstractNmeaCodec {
 
     @Override
     public void decode(String content) {
-        if (!NmeaMessageValidator.isValid(content, NmeaConst.MSG_TYPE_GLL)) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(NmeaMessageValidator.isValid(content, NmeaConst.MSG_TYPE_GLL));
 
         String rawContent = NmeaCodecUtil.makeRawContent(content);
         Tokenizer tokenizer = new Tokenizer(rawContent, NmeaConst.FIELD_SEP);
@@ -39,9 +38,7 @@ public class GllNmeaCodec extends AbstractNmeaCodec {
 
     @Override
     public List<String> encode(AbstractNmeaObject obj) {
-        if (!obj.getObjType().endsWith(NmeaConst.MSG_TYPE_GLL)) {
-            throw new IllegalArgumentException("Invalid type");
-        }
+        Preconditions.checkArgument(obj.getObjType().endsWith(NmeaConst.MSG_TYPE_GLL));
 
         GllNmeaObject object = (GllNmeaObject) obj;
         StringBuilder sb = new StringBuilder();

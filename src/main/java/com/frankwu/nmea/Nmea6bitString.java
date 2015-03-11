@@ -1,5 +1,7 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Created by wuf2 on 2/24/2015.
  */
@@ -10,6 +12,8 @@ public class Nmea6bitString {
     private int currentBitInByte = 0;
 
     public Nmea6bitString(String str) {
+        Preconditions.checkNotNull(str);
+
         final byte[] input = str.getBytes();
         bytes = new byte[input.length];
         for (int i = 0; i < input.length; ++i) {
@@ -37,12 +41,7 @@ public class Nmea6bitString {
     }
 
     public int next(int bits) {
-        if (bits <= 0) {
-            throw new IllegalArgumentException("bits must be positive");
-        }
-        if (bits >= 31) {
-            throw new IllegalArgumentException("bits must be less than 32");
-        }
+        Preconditions.checkArgument((bits > 0) && (bits < 32), "bits is expected (0, 32) but " + bits);
 
         int val = 0;
         for (int i = 0; i < bits; i++) {

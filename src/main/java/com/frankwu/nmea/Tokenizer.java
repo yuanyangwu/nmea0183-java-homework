@@ -1,5 +1,7 @@
 package com.frankwu.nmea;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Created by wuf2 on 2/21/2015.
  */
@@ -10,6 +12,9 @@ public class Tokenizer {
     private int index;
 
     public Tokenizer(String str, String delim) {
+        Preconditions.checkNotNull(str, "str is null");
+        Preconditions.checkNotNull(delim, "delim is null");
+
         this.str = str;
         this.delim = delim;
         this.index = 0;
