@@ -15,6 +15,17 @@ public class Tokenizer {
         this.index = 0;
     }
 
+    public boolean hasMoreTokens(boolean requireDelim) {
+        if ((index >= 0) && (index < str.length())) {
+            if (requireDelim) {
+                return (str.indexOf(delim, index) > 0);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
     public String nextToken() {
         String token = "";
         if (index >= 0) {

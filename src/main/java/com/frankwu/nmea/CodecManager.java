@@ -13,6 +13,7 @@ import java.util.Observer;
 public class CodecManager extends Observable implements Observer {
     private final static Logger logger = Logger.getLogger(CodecManager.class);
     private HashMap<String, AbstractNmeaCodec> codecs = new HashMap<>();
+    private Buffer buffer = new Buffer();
 
     public AbstractNmeaCodec createCodec(String type) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         if (type.length() != 3) {
@@ -31,7 +32,8 @@ public class CodecManager extends Observable implements Observer {
     }
 
     public void decode(String content) throws Exception {
-        for (String msg : content.split(NmeaConst.MSG_END)) {
+        List<String> contents = buffer.appendContent(content);
+        for (String msg : contents) {
             if (NmeaMessageValidator.isValid(msg)) {
                 logger.trace("decode() message: " + msg);
                 String type = msg.substring(3, 6);
