@@ -10,7 +10,7 @@ import java.util.*;
  * Created by wuf2 on 2/22/2015.
  */
 public class VdmNmeaCodec extends AbstractNmeaCodec {
-    private final Logger logger = LoggerFactory.getLogger(RmcNmeaCodec.class);
+    private final Logger logger = LoggerFactory.getLogger(VdmNmeaCodec.class);
     static public final long CHECK_INTERVAL = 500;
     static public final long INIT_DELAY = 200;
     private Timer checkTimer;
