@@ -1,7 +1,8 @@
 package com.frankwu.nmea;
 
 import com.google.common.base.Preconditions;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -9,7 +10,7 @@ import java.util.*;
  * Created by wuf2 on 2/22/2015.
  */
 public class VdmNmeaCodec extends AbstractNmeaCodec {
-    private final static Logger logger = Logger.getLogger(VdmNmeaCodec.class);
+    private final Logger logger = LoggerFactory.getLogger(RmcNmeaCodec.class);
     static public final long CHECK_INTERVAL = 500;
     static public final long INIT_DELAY = 200;
     private Timer checkTimer;
@@ -47,14 +48,14 @@ public class VdmNmeaCodec extends AbstractNmeaCodec {
 
         sentence.setEncodedMessage(tokenizer.nextToken());
         sentence.setFiller(tokenizer.nextToken());
-        logger.debug(sentence);
+        logger.debug("{}", sentence);
 
         VdmNmeaObject object = sentenceStore.addItem(sentence.getSequenceNumber(), sentence);
 
         if (object != null) {
             try {
                 object.decodeEncodedMessage();
-                logger.debug(object);
+                logger.debug("{}", object);
                 setChanged();
                 notifyObservers(object);
             } catch (Exception e) {
@@ -75,8 +76,7 @@ public class VdmNmeaCodec extends AbstractNmeaCodec {
         for (VdmNmeaObject object : objects) {
             try {
                 object.decodeEncodedMessage();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("decodeEncodeMessage fail: object=" + object + ", exception=" + e);
             }
         }

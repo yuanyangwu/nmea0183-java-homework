@@ -1,7 +1,8 @@
 package com.frankwu.nmea;
 
 import com.google.common.base.Preconditions;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
  * Created by wuf2 on 2/21/2015.
  */
 public class GllNmeaCodec extends AbstractNmeaCodec {
-    private final static Logger logger = Logger.getLogger(GllNmeaCodec.class);
+    private final Logger logger = LoggerFactory.getLogger(GllNmeaCodec.class);
 
     public GllNmeaCodec() {
     }
@@ -31,7 +32,7 @@ public class GllNmeaCodec extends AbstractNmeaCodec {
         object.setDataValid(tokenizer.nextToken());
         object.setModeIndicator(tokenizer.nextToken());
 
-        logger.debug(object);
+        logger.debug("{}", object);
         setChanged();
         notifyObservers(object);
     }
