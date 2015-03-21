@@ -4,14 +4,22 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <bean id="ggaNmeaCodec" class="com.frankwu.nmea.GgaNmeaCodec"/>
+
+    <bean id="gllNmeaCodec" class="com.frankwu.nmea.GllNmeaCodec"/>
+
+    <bean id="rmcNmeaCodec" class="com.frankwu.nmea.RmcNmeaCodec"/>
+
+    <bean id="vdmNmeaCodec" class="com.frankwu.nmea.VdmNmeaCodec"/>
+
     <bean id="codecFactory" class="com.frankwu.nmea.CodecFactory">
         <constructor-arg>
-            <list>
-                <value>GGA</value>
-                <value>GLL</value>
-                <value>RMC</value>
-                <value>VDM</value>
-            </list>
+            <map>
+                <entry key="GGA"><ref bean="ggaNmeaCodec"/></entry>
+                <entry key="GLL"><ref bean="gllNmeaCodec"/></entry>
+                <entry key="RMC"><ref bean="rmcNmeaCodec"/></entry>
+                <entry key="VDM"><ref bean="vdmNmeaCodec"/></entry>
+            </map>
         </constructor-arg>
     </bean>
 
