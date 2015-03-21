@@ -1,25 +1,53 @@
 package com.frankwu.nmea;
 
+import com.frankwu.nmea.annotation.SentenceField;
 import com.google.common.base.MoreObjects;
 
 /**
  * Created by wuf2 on 2/21/2015.
  */
 public class GgaNmeaObject extends AbstractNmeaObject {
-    private String utcTime;
-    private String latitude;
-    private String directionOfLatitude;
-    private String longitude;
-    private String directionOfLongitude;
-    private String gpsQualityIndicator;
-    private String numberOfSVs;
-    private String hdop;
-    private String orthometricHeight;
-    private String unitOfOrthometricHeight;
-    private String geoidSeparation;
-    private String unitOfGeoidSeparation;
-    private String ageOfDifferentialGpsDataRecord;
-    private String referenceStationID;
+    @SentenceField(order = 0)
+    public String utcTime;
+
+    @SentenceField(order = 1)
+    public String latitude;
+
+    @SentenceField(order = 2)
+    public String directionOfLatitude;
+
+    @SentenceField(order = 3)
+    public String longitude;
+
+    @SentenceField(order = 4)
+    public String directionOfLongitude;
+
+    @SentenceField(order = 5)
+    public String gpsQualityIndicator;
+
+    @SentenceField(order = 6)
+    public String numberOfSVs;
+
+    @SentenceField(order = 7)
+    public String hdop;
+
+    @SentenceField(order = 8)
+    public String orthometricHeight;
+
+    @SentenceField(order = 9)
+    public String unitOfOrthometricHeight;
+
+    @SentenceField(order = 10)
+    public String geoidSeparation;
+
+    @SentenceField(order = 11)
+    public String unitOfGeoidSeparation;
+
+    @SentenceField(order = 12)
+    public String ageOfDifferentialGpsDataRecord;
+
+    @SentenceField(order = 13)
+    public String referenceStationID;
 
     public GgaNmeaObject() {
         super(NmeaConst.MSG_TYPE_GGA);
@@ -48,117 +76,5 @@ public class GgaNmeaObject extends AbstractNmeaObject {
                 .add("ageOfDifferentialGpsDataRecord", ageOfDifferentialGpsDataRecord)
                 .add("referenceStationID", referenceStationID)
                 .toString();
-    }
-
-    public String getUtcTime() {
-        return utcTime;
-    }
-
-    public void setUtcTime(String utcTime) {
-        this.utcTime = utcTime;
-    }
-
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
-
-    public String getDirectionOfLatitude() {
-        return directionOfLatitude;
-    }
-
-    public void setDirectionOfLatitude(String directionOfLatitude) {
-        this.directionOfLatitude = directionOfLatitude;
-    }
-
-    public String getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getDirectionOfLongitude() {
-        return directionOfLongitude;
-    }
-
-    public void setDirectionOfLongitude(String directionOfLongitude) {
-        this.directionOfLongitude = directionOfLongitude;
-    }
-
-    public String getGpsQualityIndicator() {
-        return gpsQualityIndicator;
-    }
-
-    public void setGpsQualityIndicator(String gpsQualityIndicator) {
-        this.gpsQualityIndicator = gpsQualityIndicator;
-    }
-
-    public String getNumberOfSVs() {
-        return numberOfSVs;
-    }
-
-    public void setNumberOfSVs(String numberOfSVs) {
-        this.numberOfSVs = numberOfSVs;
-    }
-
-    public String getHdop() {
-        return hdop;
-    }
-
-    public void setHdop(String hdop) {
-        this.hdop = hdop;
-    }
-
-    public String getOrthometricHeight() {
-        return orthometricHeight;
-    }
-
-    public void setOrthometricHeight(String orthometricHeight) {
-        this.orthometricHeight = orthometricHeight;
-    }
-
-    public String getUnitOfOrthometricHeight() {
-        return unitOfOrthometricHeight;
-    }
-
-    public void setUnitOfOrthometricHeight(String unitOfOrthometricHeight) {
-        this.unitOfOrthometricHeight = unitOfOrthometricHeight;
-    }
-
-    public String getGeoidSeparation() {
-        return geoidSeparation;
-    }
-
-    public void setGeoidSeparation(String geoidSeparation) {
-        this.geoidSeparation = geoidSeparation;
-    }
-
-    public String getUnitOfGeoidSeparation() {
-        return unitOfGeoidSeparation;
-    }
-
-    public void setUnitOfGeoidSeparation(String unitOfGeoidSeparation) {
-        this.unitOfGeoidSeparation = unitOfGeoidSeparation;
-    }
-
-    public String getAgeOfDifferentialGpsDataRecord() {
-        return ageOfDifferentialGpsDataRecord;
-    }
-
-    public void setAgeOfDifferentialGpsDataRecord(String ageOfDifferentialGpsDataRecord) {
-        this.ageOfDifferentialGpsDataRecord = ageOfDifferentialGpsDataRecord;
-    }
-
-    public String getReferenceStationID() {
-        return referenceStationID;
-    }
-
-    public void setReferenceStationID(String referenceStationID) {
-        this.referenceStationID = referenceStationID;
     }
 }

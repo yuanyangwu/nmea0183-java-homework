@@ -1,18 +1,33 @@
 package com.frankwu.nmea;
 
+import com.frankwu.nmea.annotation.SentenceField;
 import com.google.common.base.MoreObjects;
 
 /**
  * Created by wuf2 on 2/21/2015.
  */
 public class GllNmeaObject extends AbstractNmeaObject {
-    private String latitude;
-    private String directionOfLatitude;
-    private String longitude;
-    private String directionOfLongitude;
-    private String utcTime;
-    private String dataValid;
-    private String modeIndicator;
+
+    @SentenceField(order = 0)
+    public String latitude;
+
+    @SentenceField(order = 1)
+    public String directionOfLatitude;
+
+    @SentenceField(order = 2)
+    public String longitude;
+
+    @SentenceField(order = 3)
+    public String directionOfLongitude;
+
+    @SentenceField(order = 4)
+    public String utcTime;
+
+    @SentenceField(order = 5)
+    public String dataValid;
+
+    @SentenceField(order = 6)
+    public String modeIndicator;
 
     public GllNmeaObject() {
         super(NmeaConst.MSG_TYPE_GLL);
@@ -34,61 +49,5 @@ public class GllNmeaObject extends AbstractNmeaObject {
                 .add("dataValid", dataValid)
                 .add("modeIndicator", modeIndicator)
                 .toString();
-    }
-
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
-
-    public String getDirectionOfLatitude() {
-        return directionOfLatitude;
-    }
-
-    public void setDirectionOfLatitude(String directionOfLatitude) {
-        this.directionOfLatitude = directionOfLatitude;
-    }
-
-    public String getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getDirectionOfLongitude() {
-        return directionOfLongitude;
-    }
-
-    public void setDirectionOfLongitude(String directionOfLongitude) {
-        this.directionOfLongitude = directionOfLongitude;
-    }
-
-    public String getUtcTime() {
-        return utcTime;
-    }
-
-    public void setUtcTime(String utcTime) {
-        this.utcTime = utcTime;
-    }
-
-    public String getDataValid() {
-        return dataValid;
-    }
-
-    public void setDataValid(String dataValid) {
-        this.dataValid = dataValid;
-    }
-
-    public String getModeIndicator() {
-        return modeIndicator;
-    }
-
-    public void setModeIndicator(String modeIndicator) {
-        this.modeIndicator = modeIndicator;
     }
 }
