@@ -18,6 +18,7 @@ public class VdmNmeaCodec extends AbstractNmeaCodec {
     private SentenceStore sentenceStore = new SentenceStore();
 
     public VdmNmeaCodec() {
+        addPostFilter(new VdmNmeaMessage1PostFilter(this));
         checkTimer = new Timer(true);
         checkTimer.scheduleAtFixedRate(new TimerTask() {
 
@@ -54,12 +55,9 @@ public class VdmNmeaCodec extends AbstractNmeaCodec {
 
         if (object != null) {
             try {
-                object.decodeEncodedMessage();
-                logger.debug("{}", object);
-                setChanged();
-                notifyObservers(object);
+                postDecode(object);
             } catch (Exception e) {
-                logger.error("decodeEncodeMessage fail: object=" + object + ", exception=" + e);
+                logger.error("postDecode fail: object=" + object + ", exception=" + e);
             }
         }
     }
@@ -75,9 +73,9 @@ public class VdmNmeaCodec extends AbstractNmeaCodec {
 
         for (VdmNmeaObject object : objects) {
             try {
-                object.decodeEncodedMessage();
+                postDecode(object);
             } catch (Exception e) {
-                logger.error("decodeEncodeMessage fail: object=" + object + ", exception=" + e);
+                logger.error("postDecode fail: object=" + object + ", exception=" + e);
             }
         }
     }

@@ -12,31 +12,13 @@ import java.util.List;
 public class VdmNmeaObject extends AbstractNmeaObject {
     private List<VdmNmeaSentence> sentences = new ArrayList<VdmNmeaSentence>();
 
-    Date receivedDate;
+    private Date receivedDate;
 
     private int totalSentenceNumber;
     private int currentSentenceNumber;
     private int sequenceNumber;
     private String channel;
-    private String encodedMessage;
-    private String filler;
-
-    private int messageId; // 6 bit
-    private int repeatIndicator; // 2 bit
-    private int userId; // 30 bit
-    private int navigationalStatus; // 4 bit
-    private int rateOfTurn; // 8 bit
-    private int sog; // 10 bit
-    private int positionAccuracy; // 1 bit
-    private int longitude; // 28 bit
-    private int latitude; // 27 bit
-    private int cog; // 12 bit
-    private int trueHeading; // 9 bit
-    private int timeStamp; // 6 bit
-    private int manoeuvreIndicator; // 2 bit
-    private int spare; // 3 bit
-    private int raimFlag; // 1 bit
-    private int communicationState; // 19 bit
+    private Object message;
 
     public VdmNmeaObject() {
         super(NmeaConst.MSG_TYPE_VDM);
@@ -52,28 +34,12 @@ public class VdmNmeaObject extends AbstractNmeaObject {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .addValue(super.toString())
+                .add("receivedDate", receivedDate)
                 .add("totalSentenceNumber", totalSentenceNumber)
                 .add("currentSentenceNumber", currentSentenceNumber)
                 .add("sequenceNumber", sequenceNumber)
                 .add("channel", channel)
-                .add("encodedMessage", encodedMessage)
-                .add("filler", filler)
-                .add("messageId", messageId)
-                .add("repeatIndicator", repeatIndicator)
-                .add("userId", userId)
-                .add("navigationalStatus", navigationalStatus)
-                .add("rateOfTurn", rateOfTurn)
-                .add("sog", sog)
-                .add("positionAccuracy", positionAccuracy)
-                .add("longitude", longitude)
-                .add("latitude", latitude)
-                .add("cog", cog)
-                .add("trueHeading", trueHeading)
-                .add("timeStamp", timeStamp)
-                .add("manoeuvreIndicator", manoeuvreIndicator)
-                .add("spare", spare)
-                .add("raimFlag", raimFlag)
-                .add("communicationState", communicationState)
+                .add("message", message)
                 .toString();
     }
 
@@ -86,38 +52,8 @@ public class VdmNmeaObject extends AbstractNmeaObject {
         receivedDate = new Date();
     }
 
-    public void decodeEncodedMessage() {
-        synchronized (this) {
-            StringBuffer sb = new StringBuffer();
-            for (VdmNmeaSentence sentence : sentences) {
-                sb.append(sentence.getEncodedMessage());
-                filler = sentence.getFiller();
-            }
-            encodedMessage = sb.toString();
-
-            Tokenizer tokenizer = new Tokenizer(encodedMessage, NmeaConst.FIELD_SEP);
-            Nmea6bitString s = new Nmea6bitString(encodedMessage + filler);
-            setMessageId(s.next(6));
-            if (getMessageId() != 1) {
-                throw new IllegalArgumentException("Unsupported VDM message Id: " + getMessageId());
-            }
-
-            setRepeatIndicator(s.next(2));
-            setUserId(s.next(30));
-            setNavigationalStatus(s.next(4));
-            setRateOfTurn(s.next(8));
-            setSog(s.next(10));
-            setPositionAccuracy(s.next(1));
-            setLongitude(s.next(28));
-            setLatitude(s.next(27));
-            setCog(s.next(12));
-            setTrueHeading(s.next(9));
-            setTimeStamp(s.next(6));
-            setManoeuvreIndicator(s.next(2));
-            setSpare(s.next(3));
-            setRaimFlag(s.next(1));
-            setCommunicationState(s.next(19));
-        }
+    public List<VdmNmeaSentence> getSentences() {
+        return sentences;
     }
 
     public Date getReceivedDate() {
@@ -156,147 +92,11 @@ public class VdmNmeaObject extends AbstractNmeaObject {
         this.channel = channel;
     }
 
-    public String getEncodedMessage() {
-        return encodedMessage;
+    public Object getMessage() {
+        return message;
     }
 
-    public void setEncodedMessage(String encodedMessage) {
-        this.encodedMessage = encodedMessage;
-    }
-
-    public String getFiller() {
-        return filler;
-    }
-
-    public void setFiller(String filler) {
-        this.filler = filler;
-    }
-
-    public int getMessageId() {
-        return messageId;
-    }
-
-    public void setMessageId(int messageId) {
-        this.messageId = messageId;
-    }
-
-    public int getRepeatIndicator() {
-        return repeatIndicator;
-    }
-
-    public void setRepeatIndicator(int repeatIndicator) {
-        this.repeatIndicator = repeatIndicator;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public int getNavigationalStatus() {
-        return navigationalStatus;
-    }
-
-    public void setNavigationalStatus(int navigationalStatus) {
-        this.navigationalStatus = navigationalStatus;
-    }
-
-    public int getRateOfTurn() {
-        return rateOfTurn;
-    }
-
-    public void setRateOfTurn(int rateOfTurn) {
-        this.rateOfTurn = rateOfTurn;
-    }
-
-    public int getSog() {
-        return sog;
-    }
-
-    public void setSog(int sog) {
-        this.sog = sog;
-    }
-
-    public int getPositionAccuracy() {
-        return positionAccuracy;
-    }
-
-    public void setPositionAccuracy(int positionAccuracy) {
-        this.positionAccuracy = positionAccuracy;
-    }
-
-    public int getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(int longitude) {
-        this.longitude = longitude;
-    }
-
-    public int getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(int latitude) {
-        this.latitude = latitude;
-    }
-
-    public int getCog() {
-        return cog;
-    }
-
-    public void setCog(int cog) {
-        this.cog = cog;
-    }
-
-    public int getTrueHeading() {
-        return trueHeading;
-    }
-
-    public void setTrueHeading(int trueHeading) {
-        this.trueHeading = trueHeading;
-    }
-
-    public int getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(int timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-
-    public int getManoeuvreIndicator() {
-        return manoeuvreIndicator;
-    }
-
-    public void setManoeuvreIndicator(int manoeuvreIndicator) {
-        this.manoeuvreIndicator = manoeuvreIndicator;
-    }
-
-    public int getSpare() {
-        return spare;
-    }
-
-    public void setSpare(int spare) {
-        this.spare = spare;
-    }
-
-    public int getRaimFlag() {
-        return raimFlag;
-    }
-
-    public void setRaimFlag(int raimFlag) {
-        this.raimFlag = raimFlag;
-    }
-
-    public int getCommunicationState() {
-        return communicationState;
-    }
-
-    public void setCommunicationState(int communicationState) {
-        this.communicationState = communicationState;
+    public void setMessage(Object message) {
+        this.message = message;
     }
 }

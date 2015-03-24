@@ -51,9 +51,7 @@ public class ParametricSentenceCodec<T extends AbstractNmeaObject> extends Abstr
                         }
                     });
 
-            logger.debug("{}", object);
-            setChanged();
-            notifyObservers(object);
+            postDecode(object);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             logger.error("decode fail: ", e);
         }
