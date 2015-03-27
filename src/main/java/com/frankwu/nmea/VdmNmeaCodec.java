@@ -18,7 +18,8 @@ public class VdmNmeaCodec extends AbstractNmeaCodec {
     private SentenceStore sentenceStore = new SentenceStore();
 
     public VdmNmeaCodec() {
-        addPostFilter(new VdmNmeaMessage1PostFilter(this));
+        addPostFilter(new VdmNmeaMessagePostFilter<VdmNmeaMessage1>(VdmNmeaMessage1.class, this));
+        addPostFilter(new VdmNmeaMessagePostFilter<VdmNmeaMessage5>(VdmNmeaMessage5.class, this));
         checkTimer = new Timer(true);
         checkTimer.scheduleAtFixedRate(new TimerTask() {
 

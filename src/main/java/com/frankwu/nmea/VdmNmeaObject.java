@@ -34,7 +34,6 @@ public class VdmNmeaObject extends AbstractNmeaObject {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .addValue(super.toString())
-                .add("receivedDate", receivedDate)
                 .add("totalSentenceNumber", totalSentenceNumber)
                 .add("currentSentenceNumber", currentSentenceNumber)
                 .add("sequenceNumber", sequenceNumber)

@@ -14,7 +14,7 @@ import static org.mockito.Mockito.*;
  */
 public class VdmNmeaCodecTest {
     @Test
-    public void decodeSingleMessage() {
+    public void decodeSingleMessage1() {
         VdmNmeaCodec codec = new VdmNmeaCodec();
         codec.addObserver(new Observer() {
             @Override
@@ -36,7 +36,7 @@ public class VdmNmeaCodecTest {
     }
 
     @Test
-    public void decodeMultipleMessage() {
+    public void decodeMultipleMessage1() {
         VdmNmeaCodec codec = new VdmNmeaCodec();
         codec.addObserver(new Observer() {
             @Override
@@ -57,6 +57,25 @@ public class VdmNmeaCodecTest {
 //        codec.decode("!AIVDM,2,2,2,A,0000000000<,2*2A\r\n");
 
         //content = "!AIVDM,1,1,2,A,569r?FP000000000000P4V1QDr3737T00000000o0p8222vbl24j0CQp20B@0000000000<,2*2A";
+    }
+
+    @Test
+    public void decodeMultipleMessage5() {
+        VdmNmeaCodec codec = new VdmNmeaCodec();
+        codec.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                System.out.println(arg);
+            }
+        });
+
+        Observer mockObserver = mock(Observer.class);
+        codec.addObserver(mockObserver);
+
+        codec.decode("!AIVDM,2,1,2,A,569r?FP000000000000P4V1QDr3737T00000000o0p8222vbl24j0CQp20B@,0*25\r\n");
+        codec.decode("!AIVDM,2,2,2,A,0000000000>,2*2A\r\n");
+
+        verify(mockObserver, times(1)).update(eq(codec), any());
     }
 
     @Test

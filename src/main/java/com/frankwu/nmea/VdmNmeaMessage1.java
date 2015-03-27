@@ -6,11 +6,7 @@ import com.google.common.base.MoreObjects;
 /**
  * Created by wuf2 on 3/21/2015.
  */
-public class VdmNmeaMessage1 {
-    // do not annotate for always decoding this explicitly
-    // (order = 0, bits = 6, fieldType = "int")
-    public int messageId;
-
+public class VdmNmeaMessage1 extends AbstractVdmNmeaMessage {
     @MessageField(order = 1, bits = 2, fieldType = "int")
     public int repeatIndicator;
 
@@ -56,9 +52,14 @@ public class VdmNmeaMessage1 {
     @MessageField(order = 15, bits = 19, fieldType = "int")
     public int communicationState;
 
+    public VdmNmeaMessage1() {
+        super(1);
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
+                .add("messageId", getMessageId())
                 .add("repeatIndicator", repeatIndicator)
                 .add("userId", userId)
                 .add("navigationalStatus", navigationalStatus)

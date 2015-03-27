@@ -15,43 +15,43 @@ public class Nmea6bitStringTest {
     }
 
     @Test
-    public void next() {
+    public void nextInt() {
         Nmea6bitString s = new Nmea6bitString("XYA");
         assertEquals("101000 100001 010001 ", s.toString());
-        assertEquals(0x28, s.next(6));
-        assertEquals(0x02, s.next(2));
-        assertEquals(0x01, s.next(4));
+        assertEquals(0x28, s.nextInt(6));
+        assertEquals(0x02, s.nextInt(2));
+        assertEquals(0x01, s.nextInt(4));
 
         s = new Nmea6bitString("XYA");
         assertEquals("101000 100001 010001 ", s.toString());
-        assertEquals(0x02, s.next(2));
-        assertEquals(0x221, s.next(10));
+        assertEquals(0x02, s.nextInt(2));
+        assertEquals(0x221, s.nextInt(10));
 
         s = new Nmea6bitString("XYA");
         assertEquals("101000 100001 010001 ", s.toString());
-        assertEquals(0x02, s.next(2));
-        assertEquals(0x885, s.next(12));
+        assertEquals(0x02, s.nextInt(2));
+        assertEquals(0x885, s.nextInt(12));
 
         s = new Nmea6bitString("XYA");
         assertEquals("101000 100001 010001 ", s.toString());
-        assertEquals(0x02, s.next(2));
-        assertEquals(0x8851, s.next(16));
+        assertEquals(0x02, s.nextInt(2));
+        assertEquals(0x8851, s.nextInt(16));
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    public void nextOutOfBounds1() {
+    public void nextIntOutOfBounds1() {
         Nmea6bitString s = new Nmea6bitString("XYA");
         assertEquals("101000 100001 010001 ", s.toString());
-        assertEquals(0x02, s.next(2));
-        assertEquals(0x8851, s.next(16));
-        s.next(1);
+        assertEquals(0x02, s.nextInt(2));
+        assertEquals(0x8851, s.nextInt(16));
+        s.nextInt(1);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    public void nextOutOfBounds2() {
+    public void nextIntOutOfBounds2() {
         Nmea6bitString s = new Nmea6bitString("XYA");
         assertEquals("101000 100001 010001 ", s.toString());
-        assertEquals(0x02, s.next(2));
-        assertEquals(0x8851, s.next(17));
+        assertEquals(0x02, s.nextInt(2));
+        assertEquals(0x8851, s.nextInt(17));
     }
 }

@@ -6,18 +6,27 @@ import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 
 /**
  * Created by wuf2 on 3/21/2015.
  */
-public class VdmNmeaMessage1PostFilter extends PostFilter {
-    private final Logger logger = LoggerFactory.getLogger(VdmNmeaMessage1PostFilter.class);
+public class VdmNmeaMessagePostFilter<T extends AbstractVdmNmeaMessage> extends PostFilter {
+    private final Logger logger = LoggerFactory.getLogger(VdmNmeaMessagePostFilter.class);
+
+    private Constructor<T> ctor;
 
     private AbstractNmeaCodec codec;
 
-    public VdmNmeaMessage1PostFilter(AbstractNmeaCodec codec) {
-        this.codec = codec;
+    public VdmNmeaMessagePostFilter(Class<T> impl, AbstractNmeaCodec codec) {
+        try {
+            ctor = impl.getConstructor();
+            this.codec = codec;
+        } catch (NoSuchMethodException e) {
+            logger.error("ctor fail: ", e);
+            throw new AssertionError();
+        }
     }
 
     @Override
@@ -35,12 +44,11 @@ public class VdmNmeaMessage1PostFilter extends PostFilter {
             }
             String encodedMessage = sb.toString();
             Nmea6bitString s = new Nmea6bitString(encodedMessage + filler);
+            logger.debug("6-bit string= {}", s);
 
-            int messageId = s.next(6);
-            if (messageId != 1) return false;
-
-            VdmNmeaMessage1 message = new VdmNmeaMessage1();
-            message.messageId = messageId;
+            int messageId = s.nextInt(6);
+            T message = ctor.newInstance();
+            if (messageId != message.getMessageId()) return false;
             vdmObject.setMessage(message);
 
             Arrays.stream(message.getClass().getFields())
@@ -48,7 +56,14 @@ public class VdmNmeaMessage1PostFilter extends PostFilter {
                     .sorted(new MessageFieldAnnotationComparator())
                     .forEach(field -> {
                         try {
-                            field.set(message, s.next(field.getAnnotation(MessageField.class).bits()));
+                            MessageField messageField = field.getAnnotation(MessageField.class);
+                            if (messageField.fieldType().equals("int")) {
+                                field.set(message, s.nextInt(messageField.bits()));
+                            } else if (messageField.fieldType().equals("string")) {
+                                field.set(message, s.nextString(messageField.bits()));
+                            } else {
+                                throw new AssertionError();
+                            }
                         } catch (Exception e) {
                             logger.error("decode fail: {} {}", message, e);
                             throw new IllegalArgumentException();
