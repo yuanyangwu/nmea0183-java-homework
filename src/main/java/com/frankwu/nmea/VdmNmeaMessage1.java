@@ -1,27 +1,60 @@
 package com.frankwu.nmea;
 
+import com.frankwu.nmea.annotation.MessageField;
 import com.google.common.base.MoreObjects;
 
 /**
  * Created by wuf2 on 3/21/2015.
  */
 public class VdmNmeaMessage1 {
-    private int messageId; // 6 bit
-    private int repeatIndicator; // 2 bit
-    private int userId; // 30 bit
-    private int navigationalStatus; // 4 bit
-    private int rateOfTurn; // 8 bit
-    private int sog; // 10 bit
-    private int positionAccuracy; // 1 bit
-    private int longitude; // 28 bit
-    private int latitude; // 27 bit
-    private int cog; // 12 bit
-    private int trueHeading; // 9 bit
-    private int timeStamp; // 6 bit
-    private int manoeuvreIndicator; // 2 bit
-    private int spare; // 3 bit
-    private int raimFlag; // 1 bit
-    private int communicationState; // 19 bit
+    // do not annotate for always decoding this explicitly
+    // (order = 0, bits = 6, fieldType = "int")
+    public int messageId;
+
+    @MessageField(order = 1, bits = 2, fieldType = "int")
+    public int repeatIndicator;
+
+    @MessageField(order = 2, bits = 30, fieldType = "int")
+    public int userId;
+
+    @MessageField(order = 3, bits = 4, fieldType = "int")
+    public int navigationalStatus;
+
+    @MessageField(order = 4, bits = 8, fieldType = "int")
+    public int rateOfTurn;
+
+    @MessageField(order = 5, bits = 10, fieldType = "int")
+    public int sog;
+
+    @MessageField(order = 6, bits = 1, fieldType = "int")
+    public int positionAccuracy;
+
+    @MessageField(order = 7, bits = 28, fieldType = "int")
+    public int longitude;
+
+    @MessageField(order = 8, bits = 27, fieldType = "int")
+    public int latitude;
+
+    @MessageField(order = 9, bits = 12, fieldType = "int")
+    public int cog;
+
+    @MessageField(order = 10, bits = 9, fieldType = "int")
+    public int trueHeading;
+
+    @MessageField(order = 11, bits = 6, fieldType = "int")
+    public int timeStamp;
+
+    @MessageField(order = 12, bits = 2, fieldType = "int")
+    public int manoeuvreIndicator;
+
+    @MessageField(order = 13, bits = 3, fieldType = "int")
+    public int spare;
+
+    @MessageField(order = 14, bits = 1, fieldType = "int")
+    public int raimFlag;
+
+    @MessageField(order = 15, bits = 19, fieldType = "int")
+    public int communicationState;
 
     @Override
     public String toString() {
@@ -42,133 +75,5 @@ public class VdmNmeaMessage1 {
                 .add("raimFlag", raimFlag)
                 .add("communicationState", communicationState)
                 .toString();
-    }
-
-    public int getMessageId() {
-        return messageId;
-    }
-
-    public void setMessageId(int messageId) {
-        this.messageId = messageId;
-    }
-
-    public int getRepeatIndicator() {
-        return repeatIndicator;
-    }
-
-    public void setRepeatIndicator(int repeatIndicator) {
-        this.repeatIndicator = repeatIndicator;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public int getNavigationalStatus() {
-        return navigationalStatus;
-    }
-
-    public void setNavigationalStatus(int navigationalStatus) {
-        this.navigationalStatus = navigationalStatus;
-    }
-
-    public int getRateOfTurn() {
-        return rateOfTurn;
-    }
-
-    public void setRateOfTurn(int rateOfTurn) {
-        this.rateOfTurn = rateOfTurn;
-    }
-
-    public int getSog() {
-        return sog;
-    }
-
-    public void setSog(int sog) {
-        this.sog = sog;
-    }
-
-    public int getPositionAccuracy() {
-        return positionAccuracy;
-    }
-
-    public void setPositionAccuracy(int positionAccuracy) {
-        this.positionAccuracy = positionAccuracy;
-    }
-
-    public int getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(int longitude) {
-        this.longitude = longitude;
-    }
-
-    public int getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(int latitude) {
-        this.latitude = latitude;
-    }
-
-    public int getCog() {
-        return cog;
-    }
-
-    public void setCog(int cog) {
-        this.cog = cog;
-    }
-
-    public int getTrueHeading() {
-        return trueHeading;
-    }
-
-    public void setTrueHeading(int trueHeading) {
-        this.trueHeading = trueHeading;
-    }
-
-    public int getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(int timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-
-    public int getManoeuvreIndicator() {
-        return manoeuvreIndicator;
-    }
-
-    public void setManoeuvreIndicator(int manoeuvreIndicator) {
-        this.manoeuvreIndicator = manoeuvreIndicator;
-    }
-
-    public int getSpare() {
-        return spare;
-    }
-
-    public void setSpare(int spare) {
-        this.spare = spare;
-    }
-
-    public int getRaimFlag() {
-        return raimFlag;
-    }
-
-    public void setRaimFlag(int raimFlag) {
-        this.raimFlag = raimFlag;
-    }
-
-    public int getCommunicationState() {
-        return communicationState;
-    }
-
-    public void setCommunicationState(int communicationState) {
-        this.communicationState = communicationState;
     }
 }

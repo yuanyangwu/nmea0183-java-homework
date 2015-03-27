@@ -1,8 +1,12 @@
 package com.frankwu.nmea;
 
+import com.frankwu.nmea.annotation.MessageField;
+import com.frankwu.nmea.annotation.MessageFieldAnnotationComparator;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 /**
  * Created by wuf2 on 3/21/2015.
@@ -36,24 +40,20 @@ public class VdmNmeaMessage1PostFilter extends PostFilter {
             if (messageId != 1) return false;
 
             VdmNmeaMessage1 message = new VdmNmeaMessage1();
-            message.setMessageId(messageId);
-            message.setRepeatIndicator(s.next(2));
-            message.setUserId(s.next(30));
-            message.setNavigationalStatus(s.next(4));
-            message.setRateOfTurn(s.next(8));
-            message.setSog(s.next(10));
-            message.setPositionAccuracy(s.next(1));
-            message.setLongitude(s.next(28));
-            message.setLatitude(s.next(27));
-            message.setCog(s.next(12));
-            message.setTrueHeading(s.next(9));
-            message.setTimeStamp(s.next(6));
-            message.setManoeuvreIndicator(s.next(2));
-            message.setSpare(s.next(3));
-            message.setRaimFlag(s.next(1));
-            message.setCommunicationState(s.next(19));
-
+            message.messageId = messageId;
             vdmObject.setMessage(message);
+
+            Arrays.stream(message.getClass().getFields())
+                    .filter(field -> field.isAnnotationPresent(MessageField.class))
+                    .sorted(new MessageFieldAnnotationComparator())
+                    .forEach(field -> {
+                        try {
+                            field.set(message, s.next(field.getAnnotation(MessageField.class).bits()));
+                        } catch (Exception e) {
+                            logger.error("decode fail: {} {}", message, e);
+                            throw new IllegalArgumentException();
+                        }
+                    });
             return true;
         } catch (Exception e) {
             logger.error("decodeEncodeMessage fail: object=" + object + ", exception=" + e);
