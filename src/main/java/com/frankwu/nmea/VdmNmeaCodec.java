@@ -18,8 +18,11 @@ public class VdmNmeaCodec extends AbstractNmeaCodec {
     private SentenceStore sentenceStore = new SentenceStore();
 
     public VdmNmeaCodec() {
+        addPreFilter(new VdmNmeaMessagePreFilter<VdmNmeaMessage1>(VdmNmeaMessage1.class));
+        addPreFilter(new VdmNmeaMessagePreFilter<VdmNmeaMessage5>(VdmNmeaMessage5.class));
         addPostFilter(new VdmNmeaMessagePostFilter<VdmNmeaMessage1>(VdmNmeaMessage1.class, this));
         addPostFilter(new VdmNmeaMessagePostFilter<VdmNmeaMessage5>(VdmNmeaMessage5.class, this));
+
         checkTimer = new Timer(true);
         checkTimer.scheduleAtFixedRate(new TimerTask() {
 
@@ -59,13 +62,37 @@ public class VdmNmeaCodec extends AbstractNmeaCodec {
                 postDecode(object);
             } catch (Exception e) {
                 logger.error("postDecode fail: object=" + object + ", exception=" + e);
+                e.printStackTrace();
             }
         }
     }
 
     @Override
     public List<String> encode(AbstractNmeaObject obj) {
-        throw new IllegalArgumentException("Not implemented");
+        Preconditions.checkNotNull(obj);
+        Preconditions.checkArgument(obj instanceof VdmNmeaObject);
+
+        VdmNmeaObject object = (VdmNmeaObject) obj;
+        Preconditions.checkNotNull(object.getMessage());
+
+        preEncode(obj);
+
+        object.setTotalSentenceNumber(1);
+        object.setCurrentSentenceNumber(1);
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(object.getObjType()).append(NmeaConst.FIELD_SEP);
+        sb.append(object.getTotalSentenceNumber()).append(NmeaConst.FIELD_SEP);
+        sb.append(object.getCurrentSentenceNumber()).append(NmeaConst.FIELD_SEP);
+        sb.append(object.getSequenceNumber()).append(NmeaConst.FIELD_SEP);
+        sb.append(object.getChannel()).append(NmeaConst.FIELD_SEP);
+        sb.append(object.getEncodedStringAndFiller());
+
+        sb.append(NmeaCodecUtil.calcCheckSum(sb.toString()));
+        sb.insert(0, "!");
+        sb.append(NmeaConst.MSG_END);
+        return Arrays.asList(sb.toString());
     }
 
     protected void check() {

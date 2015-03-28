@@ -2,9 +2,12 @@ package com.frankwu.nmea;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -100,5 +103,40 @@ public class VdmNmeaCodecTest {
         }
 
         verify(mockObserver, times(0)).update(eq(codec), any());
+    }
+
+    @Test
+    public void encodeMessage1() {
+        final VdmNmeaCodec codec = new VdmNmeaCodec();
+        final String content = "!AIVDM,1,1,0,B,16:>>s5Oh08dLO8AsMAVqptj0@>p,0*57\r\n";
+        codec.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                AbstractNmeaObject obj = (AbstractNmeaObject) arg;
+                List<String> contents = codec.encode(obj);
+                System.out.println(contents.size());
+                System.out.println(contents.get(0));
+                assertEquals(Arrays.asList(content), contents);
+            }
+        });
+
+        codec.decode(content);
+    }
+
+    @Test
+    public void encodeMessage5() {
+        final VdmNmeaCodec codec = new VdmNmeaCodec();
+        final String content = "!AIVDM,1,1,2,A,569r?FP000000000000P4V1QDr3737T00000000o0p8222vbl24j0CQp20B@0000000000,2*24\r\n";
+        codec.decode(content);
+        codec.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                AbstractNmeaObject obj = (AbstractNmeaObject) arg;
+                List<String> contents = codec.encode(obj);
+                assertEquals(Arrays.asList(content), contents);
+            }
+        });
+
+        codec.decode(content);
     }
 }

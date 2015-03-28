@@ -61,6 +61,7 @@ public class ParametricSentenceCodec<T extends AbstractNmeaObject> extends Abstr
     public List<String> encode(AbstractNmeaObject obj) {
         Preconditions.checkNotNull(obj);
 
+        preEncode(obj);
         T object = (T) obj;
         StringBuilder sb = new StringBuilder();
 

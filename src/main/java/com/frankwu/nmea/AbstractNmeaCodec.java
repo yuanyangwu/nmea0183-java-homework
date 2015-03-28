@@ -13,15 +13,27 @@ import java.util.Observable;
  */
 public abstract class AbstractNmeaCodec extends Observable {
     private final Logger logger = LoggerFactory.getLogger(AbstractNmeaCodec.class);
+    private List<PreFilter> preFilters = new ArrayList<>();
     private List<PostFilter> postFilters = new ArrayList<>();
 
     public abstract List<String> encode(AbstractNmeaObject object);
 
     public abstract void decode(String content);
 
+    public void addPreFilter(PreFilter filter) {
+        Preconditions.checkNotNull(filter);
+        preFilters.add(filter);
+    }
+
     public void addPostFilter(PostFilter filter) {
         Preconditions.checkNotNull(filter);
         postFilters.add(filter);
+    }
+
+    protected void preEncode(AbstractNmeaObject object) {
+        for (PreFilter filter: preFilters) {
+            if (filter.encode(object)) return;
+        }
     }
 
     protected void postDecode(AbstractNmeaObject object) {

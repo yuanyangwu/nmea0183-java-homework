@@ -12,7 +12,7 @@ import java.util.Arrays;
 /**
  * Created by wuf2 on 3/21/2015.
  */
-public class VdmNmeaMessagePostFilter<T extends AbstractVdmNmeaMessage> extends PostFilter {
+public class VdmNmeaMessagePostFilter<T extends AbstractVdmNmeaMessage> implements PostFilter {
     private final Logger logger = LoggerFactory.getLogger(VdmNmeaMessagePostFilter.class);
 
     private Constructor<T> ctor;
@@ -43,10 +43,11 @@ public class VdmNmeaMessagePostFilter<T extends AbstractVdmNmeaMessage> extends 
                 filler = sentence.getFiller();
             }
             String encodedMessage = sb.toString();
-            Nmea6bitString s = new Nmea6bitString(encodedMessage + filler);
-            logger.debug("6-bit string= {}", s);
+            Nmea6bitStringReader reader = new Nmea6bitStringReader(
+                    new Nmea6bitString(encodedMessage + filler)
+            );
 
-            int messageId = s.nextInt(6);
+            int messageId = reader.readInt(6);
             T message = ctor.newInstance();
             if (messageId != message.getMessageId()) return false;
             vdmObject.setMessage(message);
@@ -58,9 +59,9 @@ public class VdmNmeaMessagePostFilter<T extends AbstractVdmNmeaMessage> extends 
                         try {
                             MessageField messageField = field.getAnnotation(MessageField.class);
                             if (messageField.fieldType().equals("int")) {
-                                field.set(message, s.nextInt(messageField.bits()));
+                                field.set(message, reader.readInt(messageField.bits()));
                             } else if (messageField.fieldType().equals("string")) {
-                                field.set(message, s.nextString(messageField.bits()));
+                                field.set(message, reader.readString(messageField.bits()));
                             } else {
                                 throw new AssertionError();
                             }

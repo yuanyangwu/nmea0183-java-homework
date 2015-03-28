@@ -18,7 +18,8 @@ public class VdmNmeaObject extends AbstractNmeaObject {
     private int currentSentenceNumber;
     private int sequenceNumber;
     private String channel;
-    private Object message;
+    private AbstractVdmNmeaMessage message;
+    private String encodedStringAndFiller;
 
     public VdmNmeaObject() {
         super(NmeaConst.MSG_TYPE_VDM);
@@ -91,11 +92,19 @@ public class VdmNmeaObject extends AbstractNmeaObject {
         this.channel = channel;
     }
 
-    public Object getMessage() {
+    public AbstractVdmNmeaMessage getMessage() {
         return message;
     }
 
-    public void setMessage(Object message) {
+    public void setMessage(AbstractVdmNmeaMessage message) {
         this.message = message;
+    }
+
+    public String getEncodedStringAndFiller() {
+        return encodedStringAndFiller;
+    }
+
+    public void setEncodedStringAndFiller(String encodedStringAndFiller) {
+        this.encodedStringAndFiller = encodedStringAndFiller;
     }
 }
