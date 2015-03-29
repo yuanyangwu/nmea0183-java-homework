@@ -27,5 +27,6 @@ public class NmeaConst {
     static final String MSG_TYPE_GGA = "GGA";
     static final String MSG_TYPE_RMC = "RMC";
     static final String MSG_TYPE_GLL = "GLL";
+    static final String MSG_TYPE_GSV = "GSV";
     static final String MSG_TYPE_VDM = "VDM";
 }

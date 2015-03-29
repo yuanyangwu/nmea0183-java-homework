@@ -12,4 +12,8 @@ public @interface SentenceField {
     String fieldType() default "string";
 
     int order();
+
+    boolean isGroup() default false;
+
+    String groupItemClass() default "";
 }

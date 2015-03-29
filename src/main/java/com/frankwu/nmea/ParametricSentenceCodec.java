@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,32 @@ public class ParametricSentenceCodec<T extends AbstractNmeaObject> extends Abstr
                     .sorted(new SentenceFieldAnnotationComparator())
                     .forEach(field -> {
                         try {
-                            field.set(object, tokenizer.nextToken());
+                            SentenceField sentenceField = field.getAnnotation(SentenceField.class);
+                            if (sentenceField.isGroup()) {
+                                if (sentenceField.groupItemClass().isEmpty()) {
+                                    throw new AssertionError();
+                                }
+                                Class cls = Class.forName(sentenceField.groupItemClass());
+                                List list = new LinkedList();
+                                field.set(object, list);
+                                while (tokenizer.hasMoreTokens(true)) {
+                                    Object item = cls.newInstance();
+                                    list.add(item);
+                                    Arrays.stream(cls.getFields())
+                                            .filter(f -> f.isAnnotationPresent(SentenceField.class))
+                                            .sorted(new SentenceFieldAnnotationComparator())
+                                            .forEach(f -> {
+                                                try {
+                                                    f.set(item, tokenizer.nextToken());
+                                                } catch (Exception e) {
+                                                    logger.error("decode group item fail: {}", e);
+                                                    throw new IllegalArgumentException();
+                                                }
+                                            });
+                                }
+                            } else {
+                                field.set(object, tokenizer.nextToken());
+                            }
                         } catch (Exception e) {
                             logger.error("decode fail: {}", e);
                             throw new IllegalArgumentException();
@@ -71,13 +97,39 @@ public class ParametricSentenceCodec<T extends AbstractNmeaObject> extends Abstr
                 .sorted(new SentenceFieldAnnotationComparator())
                 .map(field -> {
                     try {
-                        return field.get(object).toString();
-                    } catch (IllegalAccessException e) {
-                        logger.error("decode fail: {}", e);
+                        SentenceField sentenceField = field.getAnnotation(SentenceField.class);
+                        if (sentenceField.isGroup()) {
+                            if (sentenceField.groupItemClass().isEmpty()) {
+                                throw new AssertionError();
+                            }
+                            Class cls = Class.forName(sentenceField.groupItemClass());
+                            List list = (List) field.get(object);
+                            StringBuilder itemBuilder = new StringBuilder();
+                            for (Object item : list) {
+                                String itemStr = Arrays.stream(cls.getFields())
+                                        .filter(f -> f.isAnnotationPresent(SentenceField.class))
+                                        .sorted(new SentenceFieldAnnotationComparator())
+                                        .map(f -> {
+                                            try {
+                                                return f.get(item).toString();
+                                            } catch (Exception e) {
+                                                logger.error("encode group item fail: {}", e);
+                                                throw new IllegalArgumentException();
+                                            }
+                                        }).collect(Collectors.joining(NmeaConst.FIELD_SEP));
+                                itemBuilder.append(itemStr).append(NmeaConst.FIELD_SEP);
+                            }
+                            itemBuilder.deleteCharAt(itemBuilder.length() - 1);
+                            return itemBuilder.toString();
+                        } else {
+                            return field.get(object).toString();
+                        }
+                    } catch (Exception e) {
+                        logger.error("encode fail: {}", e);
                         throw new IllegalArgumentException();
                     }
                 })
-                .collect(Collectors.joining(","));
+                .collect(Collectors.joining(NmeaConst.FIELD_SEP));
         sb.append(str);
 
         sb.append(NmeaCodecUtil.calcCheckSum(sb.toString()));

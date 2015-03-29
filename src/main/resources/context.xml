@@ -8,6 +8,8 @@
 
     <bean id="gllNmeaCodec" class="com.frankwu.nmea.GllNmeaCodec"/>
 
+    <bean id="gsvNmeaCodec" class="com.frankwu.nmea.GsvNmeaCodec"/>
+
     <bean id="rmcNmeaCodec" class="com.frankwu.nmea.RmcNmeaCodec"/>
 
     <bean id="vdmNmeaCodec" class="com.frankwu.nmea.VdmNmeaCodec"/>
@@ -17,6 +19,7 @@
             <map>
                 <entry key="GGA"><ref bean="ggaNmeaCodec"/></entry>
                 <entry key="GLL"><ref bean="gllNmeaCodec"/></entry>
+                <entry key="GSV"><ref bean="gsvNmeaCodec"/></entry>
                 <entry key="RMC"><ref bean="rmcNmeaCodec"/></entry>
                 <entry key="VDM"><ref bean="vdmNmeaCodec"/></entry>
             </map>
