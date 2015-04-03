@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 /**
  * Created by wuf2 on 4/3/2015.
  */
-public class AtomicBoundQueue<T> implements AbstractBoundQueue<T> {
+public class AtomicReferenceArrayBoundQueue<T> implements AbstractBoundQueue<T> {
 
     private final int capacity;
     private final AtomicReferenceArray items;
@@ -13,7 +13,7 @@ public class AtomicBoundQueue<T> implements AbstractBoundQueue<T> {
     private volatile int head = 0;
     private volatile int tail = 0;
 
-    public AtomicBoundQueue(int capacity) {
+    public AtomicReferenceArrayBoundQueue(int capacity) {
         this.capacity = capacity + 1;
         items = new AtomicReferenceArray(this.capacity);
     }
