@@ -15,6 +15,10 @@ public class CountingObserver implements Observer {
         count.getAndIncrement();
     }
 
+    public void setCount(int count) {
+        this.count.set(count);
+    }
+
     public int getCount() {
         return count.get();
     }

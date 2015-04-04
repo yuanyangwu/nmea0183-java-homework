@@ -33,22 +33,22 @@ public class TcpDataSourceMultipleClientTest {
     @Autowired
     private TcpDataSource tcpDataSource;
 
-    private CountingObserver countingObserver;
+    private CountingObserver countingObserver = new CountingObserver();
     private final static int CLIENT_NUM = 3;
     Socket [] clientSocket = new Socket[CLIENT_NUM];
     PrintWriter [] out = new PrintWriter[CLIENT_NUM];
 
     @Before
     public void setup() {
+        countingObserver.setCount(0);
+        codecManager.addObserver(countingObserver);
         codecManager.addObserver(new Observer() {
             @Override
             public void update(Observable o, Object arg) {
-                System.out.println(arg);
+                System.out.println("Observe: " + arg);
             }
         });
 
-        countingObserver = new CountingObserver();
-        codecManager.addObserver(countingObserver);
         tcpDataSource.start();
 
         try {

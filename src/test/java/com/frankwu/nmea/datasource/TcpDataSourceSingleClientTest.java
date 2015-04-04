@@ -33,21 +33,21 @@ public class TcpDataSourceSingleClientTest {
     @Autowired
     private TcpDataSource tcpDataSource;
 
-    private CountingObserver countingObserver;
+    private CountingObserver countingObserver = new CountingObserver();
     Socket clientSocket;
     PrintWriter out;
 
     @Before
     public void setup() {
+        countingObserver.setCount(0);
+        codecManager.addObserver(countingObserver);
         codecManager.addObserver(new Observer() {
             @Override
             public void update(Observable o, Object arg) {
-                System.out.println(arg);
+                System.out.println("Observe: " + arg);
             }
         });
 
-        countingObserver = new CountingObserver();
-        codecManager.addObserver(countingObserver);
         tcpDataSource.start();
 
         try {

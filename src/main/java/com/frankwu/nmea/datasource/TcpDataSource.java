@@ -1,6 +1,8 @@
 package com.frankwu.nmea.datasource;
 
 import com.frankwu.nmea.CodecManager;
+import com.frankwu.nmea.queue.AbstractBoundQueue;
+import com.frankwu.nmea.queue.SemaphoreBoundQueue;
 import com.google.common.base.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +18,14 @@ import java.net.SocketTimeoutException;
  */
 public class TcpDataSource extends AbstractDataSource {
     private static final int TIMEOUT_IN_MS = 500;
+    private static final int QUEUE_SIZE = 50;
+
     private final Logger logger = LoggerFactory.getLogger(TcpDataSource.class);
     private int port;
     private CodecManager codecManager;
+    private AbstractBoundQueue<String> queue = new SemaphoreBoundQueue<String>(QUEUE_SIZE);
     private Thread acceptThread;
+    private Thread decodeThread;
     private volatile boolean running = false;
 
     public TcpDataSource(int port, CodecManager codecManager) {
@@ -29,14 +35,19 @@ public class TcpDataSource extends AbstractDataSource {
 
     public void start() {
         acceptThread = new AcceptThread(this);
+        decodeThread = new DecodeThread(this);
         running = true;
+        decodeThread.start();
         acceptThread.start();
+
     }
 
     public void shutdown() {
         try {
             running = false;
             acceptThread.join();
+            queue.put(null);
+            decodeThread.join();
         } catch (InterruptedException e) {
             logger.error("shutdown TcpDataSource fail: {}", e);
         }
@@ -52,6 +63,10 @@ public class TcpDataSource extends AbstractDataSource {
 
     public int getPort() {
         return port;
+    }
+
+    public AbstractBoundQueue<String> getQueue() {
+        return queue;
     }
 
     private static class AcceptThread extends Thread {
@@ -115,7 +130,7 @@ public class TcpDataSource extends AbstractDataSource {
                         }
                         String data = new String(buf, 0, count, Charsets.US_ASCII);
                         logger.debug("{} receive: {}", socket.getInetAddress().toString(), data);
-                        tcpDataSource.getCodecManager().decode(data);
+                        tcpDataSource.getQueue().put(data);
                     } catch (SocketTimeoutException e) {
                         if (!tcpDataSource.isRunning()) {
                             logger.info("incoming stream ends for server is shut down {}", socket.getInetAddress().toString());
@@ -127,6 +142,33 @@ public class TcpDataSource extends AbstractDataSource {
             } catch (Exception e) {
                 logger.error("Handle incoming TCP data fail {}", e);
             }
+        }
+    }
+
+    private static class DecodeThread extends Thread {
+        private final Logger logger = LoggerFactory.getLogger(DecodeThread.class);
+        private TcpDataSource tcpDataSource;
+
+        public DecodeThread(TcpDataSource tcpDataSource) {
+            super("TcpDataSource.DecodeThread");
+            this.tcpDataSource = tcpDataSource;
+        }
+
+        @Override
+        public void run() {
+            logger.info("Decode thread starts");
+            try {
+                while (true) {
+                    String data = tcpDataSource.getQueue().take();
+                    if (data == null) {
+                        break;
+                    }
+                    tcpDataSource.getCodecManager().decode(data);
+                }
+            } catch (Exception e) {
+                logger.error("Decode TCP data fail {}", e);
+            }
+            logger.info("Decode thread ends");
         }
     }
 }

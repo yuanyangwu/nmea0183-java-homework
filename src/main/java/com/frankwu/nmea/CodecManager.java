@@ -21,7 +21,7 @@ public class CodecManager extends Observable implements Observer {
         this.codecFactory.addObserver(this);
     }
 
-    public synchronized void  decode(String content) throws Exception {
+    public void  decode(String content) throws Exception {
         Preconditions.checkNotNull(content, "content is null");
 
         List<String> contents = buffer.appendContent(content);
