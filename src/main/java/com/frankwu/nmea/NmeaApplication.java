@@ -1,5 +1,6 @@
 package com.frankwu.nmea;
 
+import com.frankwu.nmea.datasource.TcpDataSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -33,5 +34,15 @@ public class NmeaApplication {
         }
 
         CodecManager codecManager = context.getBean(CodecManager.class);
+        TcpDataSource tcpDataSource = context.getBean(TcpDataSource.class);
+        tcpDataSource.start();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        tcpDataSource.shutdown();
     }
 }
