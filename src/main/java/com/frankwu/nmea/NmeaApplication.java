@@ -39,8 +39,7 @@ public class NmeaApplication {
         int tcpDataSourcePort = (Integer)context.getBean("tcpDataSourcePort");
         CodecManager codecManager = context.getBean(CodecManager.class);
 
-        Config config = ConfigFactory.parseString("akka.loglevel = DEBUG \n akka.actor.debug.lifecycle = on");
-        ActorSystem system = ActorSystem.create("TcpDataSourceActorSingleClientTest", config);
+        ActorSystem system = ActorSystem.create("NmeaApplication");
         final ActorRef codecManagerRef = system.actorOf(CodecManagerActor.props(codecManager), "codecManager");
         final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort), "tcpDataSource");
 

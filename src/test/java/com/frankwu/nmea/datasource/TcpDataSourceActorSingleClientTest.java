@@ -48,8 +48,7 @@ public class TcpDataSourceActorSingleClientTest {
         countingObserver.setCount(0);
         codecManager.addObserver(countingObserver);
 
-        Config config = ConfigFactory.parseString("akka.loglevel = DEBUG \n akka.actor.debug.lifecycle = on");
-        system = ActorSystem.create("TcpDataSourceActorSingleClientTest", config);
+        system = ActorSystem.create("TcpDataSourceActorSingleClientTest");
         final ActorRef codecManagerRef = system.actorOf(CodecManagerActor.props(codecManager), "codecManager");
         final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort), "tcpDataSource");
 
