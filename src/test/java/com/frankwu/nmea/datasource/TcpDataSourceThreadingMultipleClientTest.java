@@ -23,15 +23,16 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"/context.xml"})
-public class TcpDataSourceMultipleClientTest {
+public class TcpDataSourceThreadingMultipleClientTest {
+    private final static long TIMEOUT = 500;
+
     @Autowired
     private CodecManager codecManager;
 
     @Autowired
     private int tcpDataSourcePort;
 
-    @Autowired
-    private TcpDataSource tcpDataSource;
+    private TcpDataSourceThreading tcpDataSourceThreading;
 
     private CountingObserver countingObserver = new CountingObserver();
     private final static int CLIENT_NUM = 3;
@@ -42,14 +43,9 @@ public class TcpDataSourceMultipleClientTest {
     public void setup() {
         countingObserver.setCount(0);
         codecManager.addObserver(countingObserver);
-        codecManager.addObserver(new Observer() {
-            @Override
-            public void update(Observable o, Object arg) {
-                System.out.println("Observe: " + arg);
-            }
-        });
 
-        tcpDataSource.start();
+        tcpDataSourceThreading = new TcpDataSourceThreading(tcpDataSourcePort, codecManager);
+        tcpDataSourceThreading.start();
 
         try {
             for (int i = 0; i < CLIENT_NUM; i++) {
@@ -74,7 +70,8 @@ public class TcpDataSourceMultipleClientTest {
             e.printStackTrace();
         }
         codecManager.deleteObservers();
-        tcpDataSource.shutdown();
+        tcpDataSourceThreading.shutdown();
+        tcpDataSourceThreading = null;
     }
 
     @Test
@@ -83,13 +80,13 @@ public class TcpDataSourceMultipleClientTest {
         content = "$GPGGA,092750.000,5321.6802,N,00630.3372,W,1,8,1.03,61.7,M,55.2,M,,*76\r\n";
         out[0].write(content);
         out[0].flush();
-        Thread.sleep(100);
+        Thread.sleep(TIMEOUT);
         assertEquals(1, countingObserver.getCount());
 
         content = "$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A\r\n";
         out[1].write(content);
         out[1].flush();
-        Thread.sleep(100);
+        Thread.sleep(TIMEOUT);
         assertEquals(2, countingObserver.getCount());
 
         content = "$GPGSV,1,1,08,01,40,083,46,02,17,308,41,12,07,344,39*4A\r\n";
@@ -121,7 +118,7 @@ public class TcpDataSourceMultipleClientTest {
         content = "1,1,08,01,40,083,46,02,17,308,41,12,07,344,39*4A\r\n";
         out[2].write(content);
         out[2].flush();
-        Thread.sleep(100);
+        Thread.sleep(TIMEOUT);
         assertEquals(3, countingObserver.getCount());
     }
 }

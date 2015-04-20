@@ -1,8 +1,11 @@
 package com.frankwu.nmea.datasource;
 
-import com.frankwu.nmea.CodecManager;
-import com.frankwu.nmea.queue.AbstractBoundQueue;
-import com.frankwu.nmea.queue.SemaphoreBoundQueue;
+import akka.actor.ActorSelection;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
+import akka.japi.Creator;
 import com.google.common.base.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,85 +17,87 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 
 /**
- * Created by wuf2 on 4/3/2015.
+ * Created by wuf2 on 4/19/2015.
  */
-public class TcpDataSource extends AbstractDataSource {
+public class TcpDataSourceActor extends UntypedActor {
     private static final int TIMEOUT_IN_MS = 500;
-    private static final int QUEUE_SIZE = 50;
 
-    private final Logger logger = LoggerFactory.getLogger(TcpDataSource.class);
+    private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
     private int port;
-    private CodecManager codecManager;
-    private AbstractBoundQueue<String> queue = new SemaphoreBoundQueue<String>(QUEUE_SIZE);
+    private boolean running = false;
     private Thread acceptThread;
-    private Thread decodeThread;
-    private volatile boolean running = false;
 
-    public TcpDataSource(int port, CodecManager codecManager) {
+    public TcpDataSourceActor(int port) {
         this.port = port;
-        this.codecManager = codecManager;
     }
 
-    public void start() {
-        acceptThread = new AcceptThread(this);
-        decodeThread = new DecodeThread(this);
-        running = true;
-        decodeThread.start();
-        acceptThread.start();
-
-    }
-
-    public void shutdown() {
-        try {
-            running = false;
-            acceptThread.join();
-            queue.put(null);
-            decodeThread.join();
-        } catch (InterruptedException e) {
-            logger.error("shutdown TcpDataSource fail: {}", e);
-        }
-    }
-
-    public boolean isRunning() {
-        return running;
-    }
-
-    public CodecManager getCodecManager() {
-        return codecManager;
+    public static Props props(int port) {
+        return Props.create(new Creator<TcpDataSourceActor>() {
+            @Override
+            public TcpDataSourceActor create() throws Exception {
+                return new TcpDataSourceActor(port);
+            }
+        });
     }
 
     public int getPort() {
         return port;
     }
 
-    public AbstractBoundQueue<String> getQueue() {
-        return queue;
+    public boolean isRunning() {
+        return running;
+    }
+
+    @Override
+    public void preStart() throws Exception {
+        logger.debug("TcpDataSourceActor.preStart");
+        acceptThread = new AcceptThread(this);
+        running = true;
+        acceptThread.start();
+    }
+
+    @Override
+    public void postStop() throws Exception {
+        logger.debug("TcpDataSourceActor.postStop");
+        try {
+            running = false;
+            acceptThread.join();
+        } catch (InterruptedException e) {
+            logger.error("shutdown TcpDataSource fail: {}", e);
+        }
+    }
+
+    @Override
+    public void onReceive(Object message) throws Exception {
+        logger.debug("receiving " + message.toString());
+        unhandled(message);
     }
 
     private static class AcceptThread extends Thread {
         private final Logger logger = LoggerFactory.getLogger(AcceptThread.class);
-        private TcpDataSource tcpDataSource;
+        private TcpDataSourceActor tcpDataSourceActor;
 
-        public AcceptThread(TcpDataSource tcpDataSource) {
-            super("TcpDataSource.AcceptThread");
-            this.tcpDataSource = tcpDataSource;
+        public AcceptThread(TcpDataSourceActor tcpDataSourceActor) {
+            super("TcpDataSourceActor.AcceptThread");
+            this.tcpDataSourceActor = tcpDataSourceActor;
         }
 
         @Override
         public void run() {
             try (
                     ServerSocket serverSocket =
-                            new ServerSocket(tcpDataSource.getPort());
+                            new ServerSocket(tcpDataSourceActor.getPort());
             ) {
+                logger.debug("TcpDataSourceActor.AcceptThread listening");
                 serverSocket.setSoTimeout(TIMEOUT_IN_MS);
                 while (true) {
                     try {
                         Socket clientSocket = serverSocket.accept();
-                        new ReceiveThread(clientSocket, tcpDataSource).start();
+                        new ReceiveThread(clientSocket, tcpDataSourceActor).start();
                     } catch (SocketTimeoutException e) {
-                        if (!tcpDataSource.isRunning()) {
+                        if (!tcpDataSourceActor.isRunning()) {
                             serverSocket.close();
-                            logger.debug("TcpDataSource.AcceptThread ends");
+                            logger.debug("TcpDataSourceActor.AcceptThread ends");
                             break;
                         }
                     }
@@ -106,12 +111,12 @@ public class TcpDataSource extends AbstractDataSource {
     private static class ReceiveThread extends Thread {
         private final Logger logger = LoggerFactory.getLogger(ReceiveThread.class);
         private Socket socket;
-        private TcpDataSource tcpDataSource;
+        private TcpDataSourceActor tcpDataSourceActor;
 
-        public ReceiveThread(Socket socket, TcpDataSource tcpDataSource) {
-            super("TcpDataSource.ReceiveThread");
+        public ReceiveThread(Socket socket, TcpDataSourceActor tcpDataSourceActor) {
+            super("TcpDataSourceActor.ReceiveThread");
             this.socket = socket;
-            this.tcpDataSource = tcpDataSource;
+            this.tcpDataSourceActor = tcpDataSourceActor;
         }
 
         @Override
@@ -130,9 +135,10 @@ public class TcpDataSource extends AbstractDataSource {
                         }
                         String data = new String(buf, 0, count, Charsets.US_ASCII);
                         logger.debug("{} receive: {}", socket.getInetAddress().toString(), data);
-                        tcpDataSource.getQueue().put(data);
+                        final ActorSelection codecManagerActor = tcpDataSourceActor.getContext().actorSelection("../codecManager");
+                        codecManagerActor.tell(data, tcpDataSourceActor.getSender());
                     } catch (SocketTimeoutException e) {
-                        if (!tcpDataSource.isRunning()) {
+                        if (!tcpDataSourceActor.isRunning()) {
                             logger.info("incoming stream ends for server is shut down {}", socket.getInetAddress().toString());
                             break;
                         }
@@ -142,33 +148,6 @@ public class TcpDataSource extends AbstractDataSource {
             } catch (Exception e) {
                 logger.error("Handle incoming TCP data fail {}", e);
             }
-        }
-    }
-
-    private static class DecodeThread extends Thread {
-        private final Logger logger = LoggerFactory.getLogger(DecodeThread.class);
-        private TcpDataSource tcpDataSource;
-
-        public DecodeThread(TcpDataSource tcpDataSource) {
-            super("TcpDataSource.DecodeThread");
-            this.tcpDataSource = tcpDataSource;
-        }
-
-        @Override
-        public void run() {
-            logger.info("Decode thread starts");
-            try {
-                while (true) {
-                    String data = tcpDataSource.getQueue().take();
-                    if (data == null) {
-                        break;
-                    }
-                    tcpDataSource.getCodecManager().decode(data);
-                }
-            } catch (Exception e) {
-                logger.error("Decode TCP data fail {}", e);
-            }
-            logger.info("Decode thread ends");
         }
     }
 }

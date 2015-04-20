@@ -34,9 +34,4 @@
         <constructor-arg value="5678"/>
     </bean>
 
-    <bean id="tcpDataSource" class="com.frankwu.nmea.datasource.TcpDataSource">
-        <constructor-arg ref="tcpDataSourcePort"/>
-        <constructor-arg ref="codecManager"/>
-    </bean>
-
 </beans>

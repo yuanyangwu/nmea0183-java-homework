@@ -1,14 +1,20 @@
 package com.frankwu.nmea.datasource;
 
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import akka.testkit.JavaTestKit;
 import com.frankwu.nmea.CodecManager;
+import com.frankwu.nmea.CodecManagerActor;
 import com.frankwu.nmea.testing.CountingObserver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import scala.concurrent.duration.Duration;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,20 +25,20 @@ import java.util.Observer;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by wuf2 on 4/3/2015.
+ * Created by wuf2 on 4/19/2015.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"/context.xml"})
-public class TcpDataSourceSingleClientTest {
+public class TcpDataSourceActorSingleClientTest {
+    private final static long TIMEOUT = 500;
+
     @Autowired
     private CodecManager codecManager;
 
     @Autowired
     private int tcpDataSourcePort;
 
-    @Autowired
-    private TcpDataSource tcpDataSource;
-
+    private ActorSystem system;
     private CountingObserver countingObserver = new CountingObserver();
     Socket clientSocket;
     PrintWriter out;
@@ -41,14 +47,11 @@ public class TcpDataSourceSingleClientTest {
     public void setup() {
         countingObserver.setCount(0);
         codecManager.addObserver(countingObserver);
-        codecManager.addObserver(new Observer() {
-            @Override
-            public void update(Observable o, Object arg) {
-                System.out.println("Observe: " + arg);
-            }
-        });
 
-        tcpDataSource.start();
+        Config config = ConfigFactory.parseString("akka.loglevel = DEBUG \n akka.actor.debug.lifecycle = on");
+        system = ActorSystem.create("TcpDataSourceActorSingleClientTest", config);
+        final ActorRef codecManagerRef = system.actorOf(CodecManagerActor.props(codecManager), "codecManager");
+        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort), "tcpDataSource");
 
         try {
             clientSocket = new Socket("127.0.0.1", tcpDataSourcePort);
@@ -59,23 +62,24 @@ public class TcpDataSourceSingleClientTest {
     }
 
     @After
-    public void tearDown() {
+    public void teardown() {
         try {
             out.close();
             clientSocket.close();
             codecManager.deleteObservers();
-
-            tcpDataSource.shutdown();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        JavaTestKit.shutdownActorSystem(system);
+        system = null;
     }
 
     @Test
     public void singleObject() throws IOException, InterruptedException {
         out.write("$GPRMC,092751.000,A,5321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45\r\n");
         out.flush();
-        Thread.sleep(100);
+        Thread.sleep(TIMEOUT);
         assertEquals(1, countingObserver.getCount());
     }
 
@@ -85,7 +89,7 @@ public class TcpDataSourceSingleClientTest {
         out.flush();
         out.write("N,00630.3371,W,0.06,31.66,280511,,,A*45\r\n");
         out.flush();
-        Thread.sleep(100);
+        Thread.sleep(TIMEOUT);
         assertEquals(1, countingObserver.getCount());
     }
 
@@ -120,7 +124,7 @@ public class TcpDataSourceSingleClientTest {
         out.write(content);
         out.flush();
 
-        Thread.sleep(100);
+        Thread.sleep(TIMEOUT);
         assertEquals(6, countingObserver.getCount());
     }
 }

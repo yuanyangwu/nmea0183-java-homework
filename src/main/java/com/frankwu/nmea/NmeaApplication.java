@@ -1,6 +1,11 @@
 package com.frankwu.nmea;
 
-import com.frankwu.nmea.datasource.TcpDataSource;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import com.frankwu.nmea.datasource.TcpDataSourceActor;
+import com.frankwu.nmea.datasource.TcpDataSourceThreading;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -17,25 +22,27 @@ public class NmeaApplication {
         ApplicationContext ctx = SpringApplication.run(NmeaApplication.class, args);
 
         System.out.println("Let's inspect the beans provided by Spring Boot:");
-
         String[] beanNames = ctx.getBeanDefinitionNames();
         Arrays.sort(beanNames);
         for (String beanName : beanNames) {
             System.out.println(beanName);
         }
 
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("context.xml");
         System.out.println("Let's inspect the beans provided by XML:");
-
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("context.xml");
         beanNames = context.getBeanDefinitionNames();
         Arrays.sort(beanNames);
         for (String beanName : beanNames) {
             System.out.println(beanName);
         }
 
+        int tcpDataSourcePort = (Integer)context.getBean("tcpDataSourcePort");
         CodecManager codecManager = context.getBean(CodecManager.class);
-        TcpDataSource tcpDataSource = context.getBean(TcpDataSource.class);
-        tcpDataSource.start();
+
+        Config config = ConfigFactory.parseString("akka.loglevel = DEBUG \n akka.actor.debug.lifecycle = on");
+        ActorSystem system = ActorSystem.create("TcpDataSourceActorSingleClientTest", config);
+        final ActorRef codecManagerRef = system.actorOf(CodecManagerActor.props(codecManager), "codecManager");
+        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort), "tcpDataSource");
 
         try {
             Thread.sleep(1000);
@@ -43,6 +50,6 @@ public class NmeaApplication {
             e.printStackTrace();
         }
 
-        tcpDataSource.shutdown();
+        system.shutdown();
     }
 }
