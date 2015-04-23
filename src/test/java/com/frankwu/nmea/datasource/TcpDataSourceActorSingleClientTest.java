@@ -2,25 +2,18 @@ package com.frankwu.nmea.datasource;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Props;
 import akka.testkit.JavaTestKit;
 import com.frankwu.nmea.CodecManager;
-import com.frankwu.nmea.CodecManagerActor;
 import com.frankwu.nmea.testing.CountingObserver;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import scala.concurrent.duration.Duration;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Observable;
-import java.util.Observer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,7 +26,7 @@ public class TcpDataSourceActorSingleClientTest {
     private final static long TIMEOUT = 500;
 
     @Autowired
-    private CodecManager codecManager;
+    private CodecManager tcpCodecManager;
 
     @Autowired
     private int tcpDataSourcePort;
@@ -46,10 +39,10 @@ public class TcpDataSourceActorSingleClientTest {
     @Before
     public void setup() {
         countingObserver.setCount(0);
-        codecManager.addObserver(countingObserver);
+        tcpCodecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("TcpDataSourceActorSingleClientTest");
-        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort, codecManager), "tcpDataSource");
+        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort, tcpCodecManager), "tcpDataSource");
 
         try {
             clientSocket = new Socket("127.0.0.1", tcpDataSourcePort);
@@ -64,7 +57,7 @@ public class TcpDataSourceActorSingleClientTest {
         try {
             out.close();
             clientSocket.close();
-            codecManager.deleteObservers();
+            tcpCodecManager.deleteObservers();
         } catch (IOException e) {
             e.printStackTrace();
         }

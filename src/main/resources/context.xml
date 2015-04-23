@@ -12,22 +12,40 @@
 
     <bean id="rmcNmeaCodec" class="com.frankwu.nmea.RmcNmeaCodec"/>
 
-    <bean id="vdmNmeaCodec" class="com.frankwu.nmea.VdmNmeaCodec"/>
+    <bean id="fileVdmNmeaCodec" class="com.frankwu.nmea.VdmNmeaCodec"/>
 
-    <bean id="codecFactory" class="com.frankwu.nmea.CodecFactory">
+    <bean id="fileCodecFactory" class="com.frankwu.nmea.CodecFactory">
         <constructor-arg>
             <map>
                 <entry key="GGA"><ref bean="ggaNmeaCodec"/></entry>
                 <entry key="GLL"><ref bean="gllNmeaCodec"/></entry>
                 <entry key="GSV"><ref bean="gsvNmeaCodec"/></entry>
                 <entry key="RMC"><ref bean="rmcNmeaCodec"/></entry>
-                <entry key="VDM"><ref bean="vdmNmeaCodec"/></entry>
+                <entry key="VDM"><ref bean="fileVdmNmeaCodec"/></entry>
             </map>
         </constructor-arg>
     </bean>
 
-    <bean id="codecManager" class="com.frankwu.nmea.CodecManager">
-        <constructor-arg ref="codecFactory"/>
+    <bean id="fileCodecManager" class="com.frankwu.nmea.CodecManager">
+        <constructor-arg ref="fileCodecFactory"/>
+    </bean>
+
+    <bean id="tcpVdmNmeaCodec" class="com.frankwu.nmea.VdmNmeaCodec"/>
+
+    <bean id="tcpCodecFactory" class="com.frankwu.nmea.CodecFactory">
+        <constructor-arg>
+            <map>
+                <entry key="GGA"><ref bean="ggaNmeaCodec"/></entry>
+                <entry key="GLL"><ref bean="gllNmeaCodec"/></entry>
+                <entry key="GSV"><ref bean="gsvNmeaCodec"/></entry>
+                <entry key="RMC"><ref bean="rmcNmeaCodec"/></entry>
+                <entry key="VDM"><ref bean="tcpVdmNmeaCodec"/></entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="tcpCodecManager" class="com.frankwu.nmea.CodecManager">
+        <constructor-arg ref="tcpCodecFactory"/>
     </bean>
 
     <bean id="tcpDataSourcePort" class="java.lang.Integer">

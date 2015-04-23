@@ -26,7 +26,7 @@ public class FileDataSourceActorTest {
     private final static long TIMEOUT = 500;
 
     @Autowired
-    private CodecManager codecManager;
+    private CodecManager fileCodecManager;
 
     private ActorSystem system;
     private ActorRef fileDataSourceActorRef;
@@ -35,10 +35,10 @@ public class FileDataSourceActorTest {
     @Before
     public void setup() {
         countingObserver.setCount(0);
-        codecManager.addObserver(countingObserver);
+        fileCodecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("FileDataSourceActorTest");
-        fileDataSourceActorRef = system.actorOf(FileDataSourceActor.props(Paths.get("doc/sample.txt"), codecManager), "fileDataSource");
+        fileDataSourceActorRef = system.actorOf(FileDataSourceActor.props(Paths.get("doc/sample.txt"), fileCodecManager), "fileDataSource");
     }
 
     @After

@@ -13,8 +13,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Observable;
-import java.util.Observer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,7 +25,7 @@ public class TcpDataSourceThreadingMultipleClientTest {
     private final static long TIMEOUT = 500;
 
     @Autowired
-    private CodecManager codecManager;
+    private CodecManager tcpCodecManager;
 
     @Autowired
     private int tcpDataSourcePort;
@@ -42,9 +40,9 @@ public class TcpDataSourceThreadingMultipleClientTest {
     @Before
     public void setup() {
         countingObserver.setCount(0);
-        codecManager.addObserver(countingObserver);
+        tcpCodecManager.addObserver(countingObserver);
 
-        tcpDataSourceThreading = new TcpDataSourceThreading(tcpDataSourcePort, codecManager);
+        tcpDataSourceThreading = new TcpDataSourceThreading(tcpDataSourcePort, tcpCodecManager);
         tcpDataSourceThreading.start();
 
         try {
@@ -69,7 +67,7 @@ public class TcpDataSourceThreadingMultipleClientTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        codecManager.deleteObservers();
+        tcpCodecManager.deleteObservers();
         tcpDataSourceThreading.shutdown();
         tcpDataSourceThreading = null;
     }

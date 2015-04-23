@@ -26,11 +26,11 @@ import static org.mockito.Mockito.*;
 @ContextConfiguration(locations = {"/context.xml"})
 public class CodecManagerTest {
     @Autowired
-    CodecManager codecManager;
+    CodecManager fileCodecManager;
 
     @Before
     public void setup() {
-        codecManager.addObserver(new Observer() {
+        fileCodecManager.addObserver(new Observer() {
             @Override
             public void update(Observable o, Object arg) {
                 System.out.println(arg);
@@ -40,35 +40,35 @@ public class CodecManagerTest {
 
     @After
     public void tearDown() {
-        codecManager.deleteObservers();
+        fileCodecManager.deleteObservers();
     }
 
     @Test
     public void decodeRmcMessage() throws Exception {
         String content = "$GPRMC,092751.000,A,5321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45\r\n";
         Observer mockObserver = mock(Observer.class);
-        codecManager.addObserver(mockObserver);
+        fileCodecManager.addObserver(mockObserver);
 
-        codecManager.decode(content);
+        fileCodecManager.decode(content);
 
-        verify(mockObserver, times(1)).update(eq(codecManager), any());
+        verify(mockObserver, times(1)).update(eq(fileCodecManager), any());
     }
 
     @Test
     public void decodeConcatenatedMessage() throws Exception {
         Observer mockObserver = mock(Observer.class);
-        codecManager.addObserver(mockObserver);
+        fileCodecManager.addObserver(mockObserver);
 
-        codecManager.decode("$GPRMC,092751.000,A,5");
-        codecManager.decode("321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45\r\n");
+        fileCodecManager.decode("$GPRMC,092751.000,A,5");
+        fileCodecManager.decode("321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45\r\n");
 
-        verify(mockObserver, times(1)).update(eq(codecManager), any());
+        verify(mockObserver, times(1)).update(eq(fileCodecManager), any());
     }
 
     @Test
     public void decodeMultipleMessage() throws Exception {
         Observer mockObserver = mock(Observer.class);
-        codecManager.addObserver(mockObserver);
+        fileCodecManager.addObserver(mockObserver);
 
         String content = "$GPGGA,092750.000,5321.6802,N,00630.3372,W,1,8,1.03,61.7,M,55.2,M,,*76\r\n"
                 + "$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A\r\n"
@@ -77,15 +77,15 @@ public class CodecManagerTest {
                 + "!AIVDM,1,1,,B,16:>>s5Oh08dLO8AsMAVqptj0@>p,0*67\r\n"
                 + "!AIVDM,2,1,2,A,569r?FP000000000000P4V1QDr3737T00000000o0p8222vbl24j0CQp20B@,0*25\r\n"
                 + "!AIVDM,2,2,2,A,0000000000>,2*2A\r\n";
-        codecManager.decode(content);
+        fileCodecManager.decode(content);
 
-        verify(mockObserver, times(6)).update(eq(codecManager), any());
+        verify(mockObserver, times(6)).update(eq(fileCodecManager), any());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void decodeInvalidMessage() throws Exception {
         String content = "$GPAAM,A,A,0.10,N,WPTNME*32\r\n$GPRMC,092751.000,A,5321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45\r\n";
-        codecManager.decode(content);
+        fileCodecManager.decode(content);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class CodecManagerTest {
             public void update(Observable o, Object arg) {
                 try {
                     AbstractNmeaObject obj = (AbstractNmeaObject) arg;
-                    List<String> contents = codecManager.encode(obj);
+                    List<String> contents = fileCodecManager.encode(obj);
                     assertEquals(Arrays.asList(content), contents);
                 } catch (Exception e) {
                     assertTrue("Expect no exception " + e, false);

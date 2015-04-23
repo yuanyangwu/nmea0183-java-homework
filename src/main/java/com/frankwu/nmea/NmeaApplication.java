@@ -39,11 +39,14 @@ public class NmeaApplication {
         }
 
         int tcpDataSourcePort = (Integer)context.getBean("tcpDataSourcePort");
-        CodecManager codecManager = context.getBean(CodecManager.class);
 
         ActorSystem system = ActorSystem.create("NmeaApplication");
-        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort, codecManager), "tcpDataSource");
-        final ActorRef fileDataSourceActorRef = system.actorOf(FileDataSourceActor.props(Paths.get("doc/sample.txt"), codecManager), "fileDataSource");
+
+        CodecManager tcpCodecManager = (CodecManager) context.getBean("tcpCodecManager");
+        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort, tcpCodecManager), "tcpDataSource");
+
+        CodecManager fileCodecManager = (CodecManager) context.getBean("fileCodecManager");
+        final ActorRef fileDataSourceActorRef = system.actorOf(FileDataSourceActor.props(Paths.get("doc/sample.txt"), fileCodecManager), "fileDataSource");
         fileDataSourceActorRef.tell("start", ActorRef.noSender());
 
         try {
