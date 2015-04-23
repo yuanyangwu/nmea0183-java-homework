@@ -2,6 +2,7 @@ package com.frankwu.nmea;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import com.frankwu.nmea.datasource.FileDataSourceActor;
 import com.frankwu.nmea.datasource.TcpDataSourceActor;
 import com.frankwu.nmea.datasource.TcpDataSourceThreading;
 import com.typesafe.config.Config;
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -42,6 +44,8 @@ public class NmeaApplication {
         ActorSystem system = ActorSystem.create("NmeaApplication");
         final ActorRef codecManagerRef = system.actorOf(CodecManagerActor.props(codecManager), "codecManager");
         final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort), "tcpDataSource");
+        final ActorRef fileDataSourceActorRef = system.actorOf(FileDataSourceActor.props(Paths.get("doc/sample.txt"), codecManager), "fileDataSource");
+        fileDataSourceActorRef.tell("start", ActorRef.noSender());
 
         try {
             Thread.sleep(1000);

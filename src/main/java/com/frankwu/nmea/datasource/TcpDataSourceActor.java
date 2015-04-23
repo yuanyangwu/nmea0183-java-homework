@@ -126,6 +126,7 @@ public class TcpDataSourceActor extends UntypedActor {
                     InputStream in = socket.getInputStream();
             ) {
                 byte[] buf = new byte[128];
+                final ActorSelection codecManagerActor = tcpDataSourceActor.getContext().actorSelection("../codecManager");
                 while (true) {
                     try {
                         int count = in.read(buf);
@@ -135,7 +136,6 @@ public class TcpDataSourceActor extends UntypedActor {
                         }
                         String data = new String(buf, 0, count, Charsets.US_ASCII);
                         logger.debug("{} receive: {}", socket.getInetAddress().toString(), data);
-                        final ActorSelection codecManagerActor = tcpDataSourceActor.getContext().actorSelection("../codecManager");
                         codecManagerActor.tell(data, tcpDataSourceActor.getSender());
                     } catch (SocketTimeoutException e) {
                         if (!tcpDataSourceActor.isRunning()) {
