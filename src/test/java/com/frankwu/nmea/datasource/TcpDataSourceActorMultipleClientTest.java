@@ -50,8 +50,7 @@ public class TcpDataSourceActorMultipleClientTest {
         codecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("TcpDataSourceActorMultipleClientTest");
-        final ActorRef codecManagerRef = system.actorOf(CodecManagerActor.props(codecManager), "codecManager");
-        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort), "tcpDataSource");
+        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort, codecManager), "tcpDataSource");
 
         try {
             for (int i = 0; i < CLIENT_NUM; i++) {

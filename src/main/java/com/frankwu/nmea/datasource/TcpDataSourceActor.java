@@ -1,11 +1,14 @@
 package com.frankwu.nmea.datasource;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import com.frankwu.nmea.CodecManager;
+import com.frankwu.nmea.CodecManagerActor;
 import com.google.common.base.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,18 +27,21 @@ public class TcpDataSourceActor extends UntypedActor {
 
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
     private int port;
+    private CodecManager codecManager;
     private boolean running = false;
     private Thread acceptThread;
 
-    public TcpDataSourceActor(int port) {
+    public TcpDataSourceActor(int port, CodecManager codecManager) {
         this.port = port;
+        this.codecManager = codecManager;
+        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager), "codecManager");
     }
 
-    public static Props props(int port) {
+    public static Props props(int port, CodecManager codecManager) {
         return Props.create(new Creator<TcpDataSourceActor>() {
             @Override
             public TcpDataSourceActor create() throws Exception {
-                return new TcpDataSourceActor(port);
+                return new TcpDataSourceActor(port, codecManager);
             }
         });
     }
@@ -126,7 +132,7 @@ public class TcpDataSourceActor extends UntypedActor {
                     InputStream in = socket.getInputStream();
             ) {
                 byte[] buf = new byte[128];
-                final ActorSelection codecManagerActor = tcpDataSourceActor.getContext().actorSelection("../codecManager");
+                final ActorSelection codecManagerActor = tcpDataSourceActor.getContext().actorSelection("codecManager");
                 while (true) {
                     try {
                         int count = in.read(buf);

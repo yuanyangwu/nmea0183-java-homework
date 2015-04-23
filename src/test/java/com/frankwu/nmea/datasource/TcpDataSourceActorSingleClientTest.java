@@ -49,8 +49,7 @@ public class TcpDataSourceActorSingleClientTest {
         codecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("TcpDataSourceActorSingleClientTest");
-        final ActorRef codecManagerRef = system.actorOf(CodecManagerActor.props(codecManager), "codecManager");
-        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort), "tcpDataSource");
+        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort, codecManager), "tcpDataSource");
 
         try {
             clientSocket = new Socket("127.0.0.1", tcpDataSourcePort);
