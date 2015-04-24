@@ -1,16 +1,14 @@
 package com.frankwu.nmea.datasource;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSelection;
-import akka.actor.Props;
-import akka.actor.UntypedActor;
+import akka.actor.*;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import akka.japi.Function;
 import com.frankwu.nmea.CodecManager;
 import com.frankwu.nmea.CodecManagerActor;
 import com.google.common.base.Charsets;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import scala.concurrent.duration.Duration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,6 +22,16 @@ public class FileDataSourceActor extends UntypedActor {
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
     private Path filePath;
 
+    private SupervisorStrategy supervisorStrategy = new OneForOneStrategy(3, Duration.create("5 seconds"), new Function<Throwable, SupervisorStrategy.Directive>() {
+        @Override
+        public SupervisorStrategy.Directive apply(Throwable param) throws Exception {
+            if (param instanceof IllegalArgumentException) {
+                return SupervisorStrategy.resume();
+            }
+            return SupervisorStrategy.escalate();
+        }
+    });
+
     public FileDataSourceActor(Path filePath, CodecManager codecManager) {
         this.filePath = filePath;
         ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager), "codecManager");
@@ -36,6 +44,11 @@ public class FileDataSourceActor extends UntypedActor {
                 return new FileDataSourceActor(filePath, codecManager);
             }
         });
+    }
+
+    @Override
+    public SupervisorStrategy supervisorStrategy() {
+        return supervisorStrategy;
     }
 
     @Override

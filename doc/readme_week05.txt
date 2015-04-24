@@ -5,6 +5,7 @@ Replace threading based approach with actor based approach
     Add CodecManagerActor (com.frankwu.nmea)
     Add TcpDataSourceActor (com.frankwu.nmea.datasource), tested by TcpDataSourceActorSingleClientTest and TcpDataSourceActorMultipleClientTest
     Add FileDataSourceActor (com.frankwu.nmea.datasource), tested by FileDataSourceActorTest
+    Customize supervisor strategy
     Integrate actors into NmeaApplication
         NmeaApplication (ActorSystem)
                 |

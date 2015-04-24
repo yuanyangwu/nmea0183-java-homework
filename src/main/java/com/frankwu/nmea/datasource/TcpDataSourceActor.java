@@ -1,17 +1,16 @@
 package com.frankwu.nmea.datasource;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSelection;
-import akka.actor.Props;
-import akka.actor.UntypedActor;
+import akka.actor.*;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import akka.japi.Function;
 import com.frankwu.nmea.CodecManager;
 import com.frankwu.nmea.CodecManagerActor;
 import com.google.common.base.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.concurrent.duration.Duration;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +30,16 @@ public class TcpDataSourceActor extends UntypedActor {
     private boolean running = false;
     private Thread acceptThread;
 
+    private SupervisorStrategy supervisorStrategy = new OneForOneStrategy(3, Duration.create("5 seconds"), new Function<Throwable, SupervisorStrategy.Directive>() {
+        @Override
+        public SupervisorStrategy.Directive apply(Throwable param) throws Exception {
+            if (param instanceof IllegalArgumentException) {
+                return SupervisorStrategy.resume();
+            }
+            return SupervisorStrategy.escalate();
+        }
+    });
+
     public TcpDataSourceActor(int port, CodecManager codecManager) {
         this.port = port;
         this.codecManager = codecManager;
@@ -44,6 +53,11 @@ public class TcpDataSourceActor extends UntypedActor {
                 return new TcpDataSourceActor(port, codecManager);
             }
         });
+    }
+
+    @Override
+    public SupervisorStrategy supervisorStrategy() {
+        return supervisorStrategy;
     }
 
     public int getPort() {
