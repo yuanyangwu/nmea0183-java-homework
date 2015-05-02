@@ -52,4 +52,26 @@
         <constructor-arg value="5678"/>
     </bean>
 
+    <bean id="nettyTcpServerVdmNmeaCodec" class="com.frankwu.nmea.VdmNmeaCodec"/>
+
+    <bean id="nettyTcpServerCodecFactory" class="com.frankwu.nmea.CodecFactory">
+        <constructor-arg>
+            <map>
+                <entry key="GGA"><ref bean="ggaNmeaCodec"/></entry>
+                <entry key="GLL"><ref bean="gllNmeaCodec"/></entry>
+                <entry key="GSV"><ref bean="gsvNmeaCodec"/></entry>
+                <entry key="RMC"><ref bean="rmcNmeaCodec"/></entry>
+                <entry key="VDM"><ref bean="nettyTcpServerVdmNmeaCodec"/></entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="nettyTcpServerCodecManager" class="com.frankwu.nmea.CodecManager">
+        <constructor-arg ref="nettyTcpServerCodecFactory"/>
+    </bean>
+
+    <bean id="nettyTcpServerDataSourcePort" class="java.lang.Integer">
+        <constructor-arg value="5679"/>
+    </bean>
+
 </beans>

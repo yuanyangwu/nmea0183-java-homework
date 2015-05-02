@@ -3,6 +3,7 @@ package com.frankwu.nmea;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import com.frankwu.nmea.datasource.FileDataSourceActor;
+import com.frankwu.nmea.datasource.NettyTcpServerDataSourceActor;
 import com.frankwu.nmea.datasource.TcpDataSourceActor;
 import com.frankwu.nmea.datasource.TcpDataSourceThreading;
 import com.typesafe.config.Config;
@@ -38,16 +39,19 @@ public class NmeaApplication {
             System.out.println(beanName);
         }
 
-        int tcpDataSourcePort = (Integer)context.getBean("tcpDataSourcePort");
-
         ActorSystem system = ActorSystem.create("NmeaApplication");
 
+        int tcpDataSourcePort = (Integer)context.getBean("tcpDataSourcePort");
         CodecManager tcpCodecManager = (CodecManager) context.getBean("tcpCodecManager");
         final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort, tcpCodecManager), "tcpDataSource");
 
         CodecManager fileCodecManager = (CodecManager) context.getBean("fileCodecManager");
         final ActorRef fileDataSourceActorRef = system.actorOf(FileDataSourceActor.props(Paths.get("doc/sample.txt"), fileCodecManager), "fileDataSource");
         fileDataSourceActorRef.tell("start", ActorRef.noSender());
+
+        int nettyTcpServerDataSourcePort = (Integer)context.getBean("nettyTcpServerDataSourcePort");
+        CodecManager nettyTcpServerCodecManager = (CodecManager) context.getBean("nettyTcpServerCodecManager");
+        final ActorRef nettyTcpServerDataSourceRef = system.actorOf(NettyTcpServerDataSourceActor.props(nettyTcpServerDataSourcePort, nettyTcpServerCodecManager), "nettyTcpServerDataSource");
 
         try {
             Thread.sleep(1000);

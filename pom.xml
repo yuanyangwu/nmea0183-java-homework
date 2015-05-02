@@ -64,5 +64,10 @@
             <version>2.3.9</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.0.27.Final</version>
+        </dependency>
     </dependencies>
 </project>
