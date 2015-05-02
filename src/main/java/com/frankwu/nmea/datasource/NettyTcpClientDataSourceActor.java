@@ -27,7 +27,6 @@ public class NettyTcpClientDataSourceActor extends UntypedActor {
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
     private String host;
     private int port;
-    private CodecManager codecManager;
     private boolean running = false;
     private Thread clientThread;
 
@@ -44,7 +43,6 @@ public class NettyTcpClientDataSourceActor extends UntypedActor {
     public NettyTcpClientDataSourceActor(String host, int port, CodecManager codecManager) {
         this.host = host;
         this.port = port;
-        this.codecManager = codecManager;
         ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager), "codecManager");
     }
 

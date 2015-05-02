@@ -25,7 +25,6 @@ import scala.concurrent.duration.Duration;
 public class NettyTcpServerDataSourceActor extends UntypedActor {
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
     private int port;
-    private CodecManager codecManager;
     EventLoopGroup bossGroup;
     EventLoopGroup workerGroup;
 
@@ -41,7 +40,6 @@ public class NettyTcpServerDataSourceActor extends UntypedActor {
 
     public NettyTcpServerDataSourceActor(int port, CodecManager codecManager) {
         this.port = port;
-        this.codecManager = codecManager;
         ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager), "codecManager");
     }
 
