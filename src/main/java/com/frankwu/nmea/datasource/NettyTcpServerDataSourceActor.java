@@ -23,8 +23,6 @@ import scala.concurrent.duration.Duration;
  * Created by wuf2 on 5/1/2015.
  */
 public class NettyTcpServerDataSourceActor extends UntypedActor {
-    private static final int TIMEOUT_IN_MS = 500;
-
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
     private int port;
     private CodecManager codecManager;
@@ -60,7 +58,7 @@ public class NettyTcpServerDataSourceActor extends UntypedActor {
     public void preStart() throws Exception {
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup();
-        final UntypedActor actor = this;
+        final ActorSelection codecManagerActor = getContext().actorSelection("codecManager");
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.group(bossGroup, workerGroup)
@@ -73,7 +71,7 @@ public class NettyTcpServerDataSourceActor extends UntypedActor {
                             socketChannel.pipeline()
                                     .addLast(new LoggingHandler(LogLevel.INFO))
                                     .addLast(new StringDecoder())
-                                    .addLast(new NettyTcpServerHandler(actor));
+                                    .addLast(new NettyTcpServerHandler(codecManagerActor));
                         }
                     });
 
@@ -98,18 +96,16 @@ public class NettyTcpServerDataSourceActor extends UntypedActor {
     @ChannelHandler.Sharable
     private static class NettyTcpServerHandler extends SimpleChannelInboundHandler<String> {
         private final Logger logger = LoggerFactory.getLogger(NettyTcpServerHandler.class);
-        private final UntypedActor actor;
+        private final ActorSelection codecManagerActor;
 
-
-        public NettyTcpServerHandler(UntypedActor actor) {
-            this.actor = actor;
+        public NettyTcpServerHandler(ActorSelection codecManagerActor) {
+            this.codecManagerActor = codecManagerActor;
         }
 
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
             logger.info("{}", msg);
-            final ActorSelection codecManagerActor = actor.getContext().actorSelection("codecManager");
-            codecManagerActor.tell(msg, actor.getSender());
+            codecManagerActor.tell(msg, ActorRef.noSender());
         }
 
         @Override

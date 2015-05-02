@@ -2,10 +2,7 @@ package com.frankwu.nmea;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import com.frankwu.nmea.datasource.FileDataSourceActor;
-import com.frankwu.nmea.datasource.NettyTcpServerDataSourceActor;
-import com.frankwu.nmea.datasource.TcpDataSourceActor;
-import com.frankwu.nmea.datasource.TcpDataSourceThreading;
+import com.frankwu.nmea.datasource.*;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.springframework.boot.SpringApplication;
@@ -52,6 +49,11 @@ public class NmeaApplication {
         int nettyTcpServerDataSourcePort = (Integer)context.getBean("nettyTcpServerDataSourcePort");
         CodecManager nettyTcpServerCodecManager = (CodecManager) context.getBean("nettyTcpServerCodecManager");
         final ActorRef nettyTcpServerDataSourceRef = system.actorOf(NettyTcpServerDataSourceActor.props(nettyTcpServerDataSourcePort, nettyTcpServerCodecManager), "nettyTcpServerDataSource");
+
+        String nettyTcpClientDataSourceTargetHost = (String)context.getBean("nettyTcpClientDataSourceTargetHost");
+        int nettyTcpClientDataSourceTargetPort = (Integer)context.getBean("nettyTcpClientDataSourceTargetPort");
+        CodecManager nettyTcpClientCodecManager = (CodecManager) context.getBean("nettyTcpClientCodecManager");
+        final ActorRef nettyTcpClientDataSourceRef = system.actorOf(NettyTcpClientDataSourceActor.props(nettyTcpClientDataSourceTargetHost, nettyTcpClientDataSourceTargetPort, nettyTcpClientCodecManager), "nettyTcpClientDataSource");
 
         try {
             Thread.sleep(1000);
