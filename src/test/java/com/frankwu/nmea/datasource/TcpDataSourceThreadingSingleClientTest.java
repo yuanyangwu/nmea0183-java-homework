@@ -1,6 +1,7 @@
 package com.frankwu.nmea.datasource;
 
 import com.frankwu.nmea.CodecManager;
+import com.frankwu.nmea.NmeaApplication;
 import com.frankwu.nmea.testing.CountingObserver;
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +21,7 @@ import static org.junit.Assert.assertEquals;
  * Created by wuf2 on 4/3/2015.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"/context.xml"})
+@ContextConfiguration(classes = NmeaApplication.class)
 public class TcpDataSourceThreadingSingleClientTest {
     private final static long TIMEOUT = 500;
 

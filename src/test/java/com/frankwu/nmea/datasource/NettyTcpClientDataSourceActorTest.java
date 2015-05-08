@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.JavaTestKit;
 import com.frankwu.nmea.CodecManager;
+import com.frankwu.nmea.NmeaApplication;
 import com.frankwu.nmea.testing.CountingObserver;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -23,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  * Created by wuf2 on 5/2/2015.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"/context.xml"})
+@ContextConfiguration(classes = NmeaApplication.class)
 public class NettyTcpClientDataSourceActorTest {
     private final static long TIMEOUT = 500;
 

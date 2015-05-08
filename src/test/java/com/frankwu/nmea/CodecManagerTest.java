@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
  * Created by wuf2 on 2/21/2015.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"/context.xml"})
+@ContextConfiguration(classes = NmeaApplication.class)
 public class CodecManagerTest {
     @Autowired
     CodecManager fileCodecManager;
