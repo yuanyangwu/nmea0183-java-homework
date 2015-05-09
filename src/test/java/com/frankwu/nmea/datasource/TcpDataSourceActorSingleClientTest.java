@@ -46,9 +46,10 @@ public class TcpDataSourceActorSingleClientTest {
         final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort, tcpCodecManager), "tcpDataSource");
 
         try {
+            Thread.sleep(TIMEOUT);
             clientSocket = new Socket("127.0.0.1", tcpDataSourcePort);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

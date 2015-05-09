@@ -48,9 +48,10 @@ public class NettyTcpServerDataSourceActorSingleClientTest {
         final ActorRef nettyTcpServerDataSourceRef = system.actorOf(NettyTcpServerDataSourceActor.props(nettyTcpServerDataSourcePort, nettyTcpServerCodecManager), "nettyTcpServerDataSource");
 
         try {
+            Thread.sleep(TIMEOUT);
             clientSocket = new Socket("127.0.0.1", nettyTcpServerDataSourcePort);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -49,11 +49,12 @@ public class NettyTcpServerDataSourceActorMultipleClientTest {
         final ActorRef nettyTcpServerDataSourceRef = system.actorOf(NettyTcpServerDataSourceActor.props(nettyTcpServerDataSourcePort, nettyTcpServerCodecManager), "nettyTcpServerDataSource");
 
         try {
+            Thread.sleep(TIMEOUT);
             for (int i = 0; i < CLIENT_NUM; i++) {
                 clientSocket[i] = new Socket("127.0.0.1", nettyTcpServerDataSourcePort);
                 out[i] = new PrintWriter(clientSocket[i].getOutputStream(), true);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

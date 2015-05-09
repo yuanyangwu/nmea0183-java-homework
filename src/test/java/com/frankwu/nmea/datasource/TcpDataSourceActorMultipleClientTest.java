@@ -49,11 +49,12 @@ public class TcpDataSourceActorMultipleClientTest {
         final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort, tcpCodecManager), "tcpDataSource");
 
         try {
+            Thread.sleep(TIMEOUT);
             for (int i = 0; i < CLIENT_NUM; i++) {
                 clientSocket[i] = new Socket("127.0.0.1", tcpDataSourcePort);
                 out[i] = new PrintWriter(clientSocket[i].getOutputStream(), true);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
