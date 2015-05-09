@@ -24,6 +24,7 @@ Integrate actors into NmeaApplication
                                 |
                                 +------ nettyTcpClientCodecManager(CodecManager)
 
+(minor) replace file-based spring context with java-based
 
 Build environment
 =================
