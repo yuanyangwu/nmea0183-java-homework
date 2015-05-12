@@ -38,16 +38,16 @@ public class NettyTcpServerDataSourceActor extends UntypedActor {
         }
     });
 
-    public NettyTcpServerDataSourceActor(int port, CodecManager codecManager) {
+    public NettyTcpServerDataSourceActor(int port, CodecManager codecManager, String monitorAddress) {
         this.port = port;
-        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager), "codecManager");
+        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager, monitorAddress), "codecManager");
     }
 
-    public static Props props(int port, CodecManager codecManager) {
+    public static Props props(int port, CodecManager codecManager, String monitorAddress) {
         return Props.create(new Creator<NettyTcpServerDataSourceActor>() {
             @Override
             public NettyTcpServerDataSourceActor create() throws Exception {
-                return new NettyTcpServerDataSourceActor(port, codecManager);
+                return new NettyTcpServerDataSourceActor(port, codecManager, monitorAddress);
             }
         });
     }

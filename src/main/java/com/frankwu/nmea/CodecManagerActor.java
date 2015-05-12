@@ -5,27 +5,54 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.zeromq.ZMQ;
+
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by wuf2 on 4/15/2015.
  */
-public class CodecManagerActor extends UntypedActor {
+public class CodecManagerActor extends UntypedActor implements Observer {
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
-    private CodecManager codecManager;
+    private final CodecManager codecManager;
+    private final String monitorAddress;
+    private String envelop;
+    private ZMQ.Context zmqContext;
+    private ZMQ.Socket publisher;
 
-    public CodecManagerActor(CodecManager codecManager) {
+    public CodecManagerActor(CodecManager codecManager, String monitorAddress) {
         this.codecManager = codecManager;
+        this.monitorAddress = monitorAddress;
     }
 
-    public static Props props(CodecManager codecManager) {
+    public static Props props(CodecManager codecManager, String monitorAddress) {
         return Props.create(new Creator<CodecManagerActor>() {
             @Override
             public CodecManagerActor create() throws Exception {
-                return new CodecManagerActor(codecManager);
+                return new CodecManagerActor(codecManager, monitorAddress);
             }
         });
+    }
+
+    @Override
+    public void preStart() throws Exception {
+        envelop = getSelf().path().toString();
+        zmqContext = ZMQ.context(1);
+        publisher = zmqContext.socket(ZMQ.PUB);
+        publisher.bind(monitorAddress);
+        codecManager.addObserver(this);
+    }
+
+    @Override
+    public void postStop() throws Exception {
+        codecManager.deleteObserver(this);
+        publisher.close();
+        publisher = null;
+        zmqContext.term();
+        zmqContext = null;
     }
 
     @Override
@@ -33,9 +60,27 @@ public class CodecManagerActor extends UntypedActor {
         logger.debug("receiving " + message.toString());
 
         if (message instanceof String) {
-            codecManager.decode((String)message);
+            codecManager.decode((String) message);
         } else {
             unhandled(message);
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        logger.debug("Observer receive {}", arg);
+        try {
+            if (arg instanceof AbstractNmeaObject) {
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+                objectOutputStream.writeObject(arg);
+                byte[] bytes = byteArrayOutputStream.toByteArray();
+
+                publisher.sendMore(envelop);
+                publisher.send(bytes);
+            }
+        } catch (Exception e) {
+            logger.error(e, "Observer update fail");
         }
     }
 }

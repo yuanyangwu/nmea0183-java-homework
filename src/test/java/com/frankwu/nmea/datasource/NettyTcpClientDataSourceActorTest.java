@@ -29,6 +29,9 @@ public class NettyTcpClientDataSourceActorTest {
     private final static long TIMEOUT = 500;
 
     @Autowired
+    private String monitorAddress;
+
+    @Autowired
     private CodecManager nettyTcpClientCodecManager;
 
     @Autowired
@@ -48,7 +51,7 @@ public class NettyTcpClientDataSourceActorTest {
         system = ActorSystem.create("NettyTcpClientDataSourceActorSingleClientTest");
         final ActorRef nettyTcpServerDataSourceRef = system.actorOf(
                 NettyTcpClientDataSourceActor.props(
-                        "localhost", nettyTcpClientDataSourceTargetPort, nettyTcpClientCodecManager),
+                        "localhost", nettyTcpClientDataSourceTargetPort, nettyTcpClientCodecManager, monitorAddress),
                 "NettyTcpClientDataSourceActorTest");
     }
 

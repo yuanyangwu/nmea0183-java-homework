@@ -40,17 +40,17 @@ public class TcpDataSourceActor extends UntypedActor {
         }
     });
 
-    public TcpDataSourceActor(int port, CodecManager codecManager) {
+    public TcpDataSourceActor(int port, CodecManager codecManager, String monitorAddress) {
         this.port = port;
         this.codecManager = codecManager;
-        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager), "codecManager");
+        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager, monitorAddress), "codecManager");
     }
 
-    public static Props props(int port, CodecManager codecManager) {
+    public static Props props(int port, CodecManager codecManager, String monitorAddress) {
         return Props.create(new Creator<TcpDataSourceActor>() {
             @Override
             public TcpDataSourceActor create() throws Exception {
-                return new TcpDataSourceActor(port, codecManager);
+                return new TcpDataSourceActor(port, codecManager, monitorAddress);
             }
         });
     }

@@ -40,17 +40,17 @@ public class NettyTcpClientDataSourceActor extends UntypedActor {
         }
     });
 
-    public NettyTcpClientDataSourceActor(String host, int port, CodecManager codecManager) {
+    public NettyTcpClientDataSourceActor(String host, int port, CodecManager codecManager, String monitorAddress) {
         this.host = host;
         this.port = port;
-        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager), "codecManager");
+        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager, monitorAddress), "codecManager");
     }
 
-    public static Props props(String host, int port, CodecManager codecManager) {
+    public static Props props(String host, int port, CodecManager codecManager, String monitorAddress) {
         return Props.create(new Creator<NettyTcpClientDataSourceActor>() {
             @Override
             public NettyTcpClientDataSourceActor create() throws Exception {
-                return new NettyTcpClientDataSourceActor(host, port, codecManager);
+                return new NettyTcpClientDataSourceActor(host, port, codecManager, monitorAddress);
             }
         });
     }
@@ -88,7 +88,7 @@ public class NettyTcpClientDataSourceActor extends UntypedActor {
             clientThread.interrupt();
             clientThread.join();
         } catch (InterruptedException e) {
-            logger.error("shutdown NettyTcpClientDataSource fail: {}", e);
+            logger.error("shutdown NettyTcpClientDataSourceActor fail: {}", e);
         }
     }
 

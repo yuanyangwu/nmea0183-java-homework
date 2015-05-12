@@ -27,6 +27,9 @@ public class TcpDataSourceActorSingleClientTest {
     private final static long TIMEOUT = 500;
 
     @Autowired
+    private String monitorAddress;
+
+    @Autowired
     private CodecManager tcpCodecManager;
 
     @Autowired
@@ -43,7 +46,8 @@ public class TcpDataSourceActorSingleClientTest {
         tcpCodecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("TcpDataSourceActorSingleClientTest");
-        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(tcpDataSourcePort, tcpCodecManager), "tcpDataSource");
+        final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(
+                tcpDataSourcePort, tcpCodecManager, monitorAddress), "tcpDataSource");
 
         try {
             Thread.sleep(TIMEOUT);

@@ -20,7 +20,7 @@ import java.nio.file.Path;
  */
 public class FileDataSourceActor extends UntypedActor {
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
-    private Path filePath;
+    private final Path filePath;
 
     private SupervisorStrategy supervisorStrategy = new OneForOneStrategy(3, Duration.create("5 seconds"), new Function<Throwable, SupervisorStrategy.Directive>() {
         @Override
@@ -32,16 +32,16 @@ public class FileDataSourceActor extends UntypedActor {
         }
     });
 
-    public FileDataSourceActor(Path filePath, CodecManager codecManager) {
+    public FileDataSourceActor(Path filePath, CodecManager codecManager, String monitorAddress) {
         this.filePath = filePath;
-        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager), "codecManager");
+        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager, monitorAddress), "codecManager");
     }
 
-    public static Props props(Path filePath, CodecManager codecManager) {
+    public static Props props(Path filePath, CodecManager codecManager, String monitorAddress) {
         return Props.create(new Creator<FileDataSourceActor>() {
             @Override
             public FileDataSourceActor create() throws Exception {
-                return new FileDataSourceActor(filePath, codecManager);
+                return new FileDataSourceActor(filePath, codecManager, monitorAddress);
             }
         });
     }

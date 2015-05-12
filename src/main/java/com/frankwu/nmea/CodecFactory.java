@@ -33,7 +33,7 @@ public class CodecFactory extends Observable implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        logger.info("parsed object: " + arg);
+        logger.debug("parsed object: " + arg);
         setChanged();
         notifyObservers(arg);
     }

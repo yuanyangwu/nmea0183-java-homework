@@ -29,6 +29,9 @@ public class NettyTcpServerDataSourceActorMultipleClientTest {
     private final static long TIMEOUT = 500;
 
     @Autowired
+    private String monitorAddress;
+
+    @Autowired
     private CodecManager nettyTcpServerCodecManager;
 
     @Autowired
@@ -46,7 +49,8 @@ public class NettyTcpServerDataSourceActorMultipleClientTest {
         nettyTcpServerCodecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("NettyTcpServerDataSourceActorMultipleClientTest");
-        final ActorRef nettyTcpServerDataSourceRef = system.actorOf(NettyTcpServerDataSourceActor.props(nettyTcpServerDataSourcePort, nettyTcpServerCodecManager), "nettyTcpServerDataSource");
+        final ActorRef nettyTcpServerDataSourceRef = system.actorOf(NettyTcpServerDataSourceActor.props(
+                nettyTcpServerDataSourcePort, nettyTcpServerCodecManager, monitorAddress), "nettyTcpServerDataSource");
 
         try {
             Thread.sleep(TIMEOUT);

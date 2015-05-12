@@ -3,10 +3,12 @@ package com.frankwu.nmea;
 import com.frankwu.nmea.annotation.SentenceField;
 import com.google.common.base.MoreObjects;
 
+import java.io.Serializable;
+
 /**
  * Created by wuf2 on 3/29/2015.
  */
-public class GsvSatelliteDetail {
+public class GsvSatelliteDetail implements Serializable {
     @SentenceField(order = 0)
     public String prn;
 
