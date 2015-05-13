@@ -18,7 +18,7 @@ import java.io.ObjectInputStream;
 public class NmeaObjectMonitorActor extends UntypedActor {
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
     private final String address;
-    private Thread subscriberThread;
+    private Thread monitorThread;
 
     public NmeaObjectMonitorActor(String address) {
         this.address = address;
@@ -35,16 +35,16 @@ public class NmeaObjectMonitorActor extends UntypedActor {
 
     public void preStart() throws Exception {
         logger.debug("NmeaObjectMonitorActor.preStart");
-        subscriberThread = new SubscriberThread(address);
-        subscriberThread.start();
+        monitorThread = new MonitorThread(address);
+        monitorThread.start();
     }
 
     @Override
     public void postStop() throws Exception {
         logger.debug("NmeaObjectMonitorActor.postStop");
         try {
-            subscriberThread.interrupt();
-            subscriberThread.join();
+            monitorThread.interrupt();
+            monitorThread.join();
         } catch (InterruptedException e) {
             logger.error("shutdown NmeaObjectMonitorActor fail: {}", e);
         }
@@ -56,35 +56,32 @@ public class NmeaObjectMonitorActor extends UntypedActor {
         unhandled(message);
     }
 
-    private static class SubscriberThread extends Thread {
-        private final Logger logger = LoggerFactory.getLogger(SubscriberThread.class);
+    private static class MonitorThread extends Thread {
+        private final Logger logger = LoggerFactory.getLogger(MonitorThread.class);
         private final String address;
 
-        public SubscriberThread(String address) {
-            super("NmeaObjectMonitorActor.SubscriberThread");
+        public MonitorThread(String address) {
+            super("NmeaObjectMonitorActor.MonitorThread");
             this.address = address;
         }
 
         @Override
         public void run() {
             ZMQ.Context zmqContext = ZMQ.context(1);
-            ZMQ.Socket subscriber = zmqContext.socket(ZMQ.SUB);
+            ZMQ.Socket monitor = zmqContext.socket(ZMQ.PULL);
             try {
-                subscriber.connect(address);
-                // disable filter and accept all sources
-                subscriber.subscribe("".getBytes());
+                monitor.bind(address);
                 while (!Thread.currentThread().isInterrupted()) {
-                    String envelop = subscriber.recvStr();
-                    byte[] bytes = subscriber.recv();
+                    byte[] bytes = monitor.recv(0);
                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
                     ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
                     Object object = objectInputStream.readObject();
-                    logger.info("subscriber receive: {} - {}", envelop, object);
+                    logger.info("monitor receive: {}", object);
                 }
             } catch (Exception e) {
-                logger.error("subscriber fail", e);
+                logger.error("monitor fail", e);
             } finally {
-                subscriber.close();
+                monitor.close();
                 zmqContext.term();
             }
         }

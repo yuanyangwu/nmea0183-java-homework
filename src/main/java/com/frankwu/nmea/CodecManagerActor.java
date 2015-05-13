@@ -21,7 +21,7 @@ public class CodecManagerActor extends UntypedActor implements Observer {
     private final String monitorAddress;
     private String envelop;
     private ZMQ.Context zmqContext;
-    private ZMQ.Socket publisher;
+    private ZMQ.Socket socket;
 
     public CodecManagerActor(CodecManager codecManager, String monitorAddress) {
         this.codecManager = codecManager;
@@ -41,18 +41,16 @@ public class CodecManagerActor extends UntypedActor implements Observer {
     public void preStart() throws Exception {
         envelop = getSelf().path().toString();
         zmqContext = ZMQ.context(1);
-        publisher = zmqContext.socket(ZMQ.PUB);
-        publisher.bind(monitorAddress);
+        socket = zmqContext.socket(ZMQ.PUSH);
+        socket.connect(monitorAddress);
         codecManager.addObserver(this);
     }
 
     @Override
     public void postStop() throws Exception {
         codecManager.deleteObserver(this);
-        publisher.close();
-        publisher = null;
+        socket.close();
         zmqContext.term();
-        zmqContext = null;
     }
 
     @Override
@@ -75,9 +73,7 @@ public class CodecManagerActor extends UntypedActor implements Observer {
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
                 objectOutputStream.writeObject(arg);
                 byte[] bytes = byteArrayOutputStream.toByteArray();
-
-                publisher.sendMore(envelop);
-                publisher.send(bytes);
+                socket.send(bytes, 0);
             }
         } catch (Exception e) {
             logger.error(e, "Observer update fail");
