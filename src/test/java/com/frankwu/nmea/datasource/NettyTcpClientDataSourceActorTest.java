@@ -5,6 +5,7 @@ import akka.actor.ActorSystem;
 import akka.testkit.JavaTestKit;
 import com.frankwu.nmea.CodecManager;
 import com.frankwu.nmea.NmeaApplication;
+import com.frankwu.nmea.NmeaObjectMonitorActor;
 import com.frankwu.nmea.testing.CountingObserver;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -49,6 +50,7 @@ public class NettyTcpClientDataSourceActorTest {
         nettyTcpClientCodecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("NettyTcpClientDataSourceActorSingleClientTest");
+        system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
         final ActorRef nettyTcpServerDataSourceRef = system.actorOf(
                 NettyTcpClientDataSourceActor.props(
                         "localhost", nettyTcpClientDataSourceTargetPort, nettyTcpClientCodecManager, monitorAddress),

@@ -35,7 +35,6 @@ public class FileDataSourceActorTest {
 
     private ActorSystem system;
     private ActorRef fileDataSourceActorRef;
-    private ActorRef nmeaObjectMonitorActorRef;
     private CountingObserver countingObserver = new CountingObserver();
 
     @Before
@@ -44,8 +43,8 @@ public class FileDataSourceActorTest {
         fileCodecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("FileDataSourceActorTest");
+        system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
         fileDataSourceActorRef = system.actorOf(FileDataSourceActor.props(Paths.get("doc/sample.txt"), fileCodecManager, monitorAddress), "fileDataSource");
-        nmeaObjectMonitorActorRef = system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
     }
 
     @After

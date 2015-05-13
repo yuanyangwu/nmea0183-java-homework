@@ -5,6 +5,7 @@ import akka.actor.ActorSystem;
 import akka.testkit.JavaTestKit;
 import com.frankwu.nmea.CodecManager;
 import com.frankwu.nmea.NmeaApplication;
+import com.frankwu.nmea.NmeaObjectMonitorActor;
 import com.frankwu.nmea.testing.CountingObserver;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -46,6 +47,7 @@ public class TcpDataSourceActorSingleClientTest {
         tcpCodecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("TcpDataSourceActorSingleClientTest");
+        system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
         final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(
                 tcpDataSourcePort, tcpCodecManager, monitorAddress), "tcpDataSource");
 
