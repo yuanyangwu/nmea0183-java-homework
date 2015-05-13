@@ -38,6 +38,11 @@ ZeroMQ connects all CodecManagerActor to 1 NmeaObjectMonitorActor
                                       |
         CodecManagerActor(PUSH) ------+
 
+ZeroMQ usage tips
+    PUSH socket sends packet in NOBLOCK
+    PUSH socket sets ZMQ_LINGER = 0 to discard any pending packets (pending packets block socket.close)
+    ZMQ.Poller polls PULL socket incoming data periodically (recv is a blocking API)
+
 Build environment
 =================
 Maven 3.2.3
