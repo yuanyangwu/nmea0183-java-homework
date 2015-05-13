@@ -2,10 +2,6 @@ package com.frankwu.nmea;
 
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
@@ -25,23 +21,8 @@ public class GgaNmeaCodecTest {
                               @Override
                               public void update(Observable o, Object arg) {
                                   System.out.println(arg);
-
-                                  try {
-                                      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                                      ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-                                      objectOutputStream.writeObject(arg);
-                                      byte[] bytes = byteArrayOutputStream.toByteArray();
-                                      ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-                                      ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-                                      Object object = objectInputStream.readObject();
-                                      System.out.println("serialized: " + object);
-
-                                  } catch (Exception e) {
-                                      e.printStackTrace();
-                                  }
                               }
                           }
-
         );
 
         Observer mockObserver = mock(Observer.class);
@@ -56,13 +37,7 @@ public class GgaNmeaCodecTest {
         content = "$GPGGA,092204.999,4250.5589,S,14718.5084,E,1,04,24.4,19.7,M,,,,0000*1F\r\n";
         codec.decode(content);
 
-        verify(mockObserver, times(3)
-
-        ).
-
-                update(eq(codec), any
-
-                        ());
+        verify(mockObserver, times(3)).update(eq(codec), any());
     }
 
     @Test
