@@ -49,6 +49,9 @@ public class CodecManagerActor extends UntypedActor implements Observer {
     @Override
     public void postStop() throws Exception {
         codecManager.deleteObserver(this);
+        // if monitor Actor is down or disconnected, pending packets can block socket.close()
+        // discard pending packets with ZMQ_LINGER = 0
+        socket.setLinger(0);
         socket.close();
         zmqContext.term();
     }
