@@ -10,19 +10,19 @@ Integrate actors into NmeaApplication
                 |
                 +------ tcpDataSource(TcpDataSourceActor, listen port: tcpDataSourcePort)
                 |               |
-                |               +------ tcpCodecManager(CodecManager)
+                |               +------ tcpCodecManager(CodecManagerActor)
                 |
                 +------ fileDataSource(FileDataSourceActor)
                 |               |
-                |               +------ fileCodecManager(CodecManager)
+                |               +------ fileCodecManager(CodecManagerActor)
                 |
                 +------ nettyTcpServerDataSource(NettyTcpServerDataSourceActor, listen port: nettyTcpServerDataSourcePort)
                 |               |
-                |               +------ nettyTcpServerCodecManager(CodecManager)
+                |               +------ nettyTcpServerCodecManager(CodecManagerActor)
                 |
-                +------ nettyTcpClientDataSource(NettyTcpClientDataSourceActorTest, target host: nettyTcpClientDataSourceTargetHost, target port: nettyTcpClientDataSourceTargetPort)
+                +------ nettyTcpClientDataSource(NettyTcpClientDataSourceActor, target host: nettyTcpClientDataSourceTargetHost, target port: nettyTcpClientDataSourceTargetPort)
                                 |
-                                +------ nettyTcpClientCodecManager(CodecManager)
+                                +------ nettyTcpClientCodecManager(CodecManagerActor)
 
 (minor) replace file-based spring context with java-based
 

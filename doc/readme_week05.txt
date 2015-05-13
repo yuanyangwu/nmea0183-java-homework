@@ -11,11 +11,11 @@ Replace threading based approach with actor based approach
                 |
                 +------ tcpDataSource(TcpDataSourceActor)
                 |               |
-                |               +------ tcpCodecManager(CodecManager)
+                |               +------ tcpCodecManager(CodecManagerActor)
                 |
                 +------ fileDataSource(FileDataSourceActor)
                                 |
-                                +------ fileCodecManager(CodecManager)
+                                +------ fileCodecManager(CodecManagerActor)
 
 
 Build environment
