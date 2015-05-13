@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 public class NmeaObjectMonitorActor extends UntypedActor {
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
     private final String address;
+    private boolean running = false;
     private Thread monitorThread;
 
     public NmeaObjectMonitorActor(String address) {
@@ -33,9 +34,18 @@ public class NmeaObjectMonitorActor extends UntypedActor {
         });
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
     public void preStart() throws Exception {
         logger.debug("NmeaObjectMonitorActor.preStart");
-        monitorThread = new MonitorThread(address);
+        running = true;
+        monitorThread = new MonitorThread(this);
         monitorThread.start();
     }
 
@@ -43,7 +53,7 @@ public class NmeaObjectMonitorActor extends UntypedActor {
     public void postStop() throws Exception {
         logger.debug("NmeaObjectMonitorActor.postStop");
         try {
-            monitorThread.interrupt();
+            running = false;
             monitorThread.join();
         } catch (InterruptedException e) {
             logger.error("shutdown NmeaObjectMonitorActor fail: {}", e);
@@ -57,31 +67,39 @@ public class NmeaObjectMonitorActor extends UntypedActor {
     }
 
     private static class MonitorThread extends Thread {
+        private static final int TIMEOUT_IN_MS = 1000;
         private final Logger logger = LoggerFactory.getLogger(MonitorThread.class);
-        private final String address;
+        private final NmeaObjectMonitorActor actor;
 
-        public MonitorThread(String address) {
+        public MonitorThread(NmeaObjectMonitorActor actor) {
             super("NmeaObjectMonitorActor.MonitorThread");
-            this.address = address;
+            this.actor = actor;
         }
 
         @Override
         public void run() {
             ZMQ.Context zmqContext = ZMQ.context(1);
-            ZMQ.Socket monitor = zmqContext.socket(ZMQ.PULL);
+            ZMQ.Socket socket = zmqContext.socket(ZMQ.PULL);
+            ZMQ.Poller poller = new ZMQ.Poller(1);
             try {
-                monitor.bind(address);
-                while (!Thread.currentThread().isInterrupted()) {
-                    byte[] bytes = monitor.recv(0);
+                socket.bind(actor.getAddress());
+                poller.register(socket, ZMQ.Poller.POLLIN);
+                while (actor.isRunning()) {
+                    // use poller to check running flag periodically
+                    if (0 == poller.poll(TIMEOUT_IN_MS)) {
+                        continue;
+                    }
+                    byte[] bytes = socket.recv(0);
                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
                     ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
                     Object object = objectInputStream.readObject();
                     logger.info("monitor receive: {}", object);
                 }
+                logger.debug("monitor gracefully shut down");
             } catch (Exception e) {
                 logger.error("monitor fail", e);
             } finally {
-                monitor.close();
+                socket.close();
                 zmqContext.term();
             }
         }

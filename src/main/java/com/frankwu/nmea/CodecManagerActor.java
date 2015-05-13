@@ -73,7 +73,9 @@ public class CodecManagerActor extends UntypedActor implements Observer {
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
                 objectOutputStream.writeObject(arg);
                 byte[] bytes = byteArrayOutputStream.toByteArray();
-                socket.send(bytes, 0);
+
+                // send in NOBLOCK in case that receiver is not listening
+                socket.send(bytes, ZMQ.NOBLOCK);
             }
         } catch (Exception e) {
             logger.error(e, "Observer update fail");
