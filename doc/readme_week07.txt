@@ -7,6 +7,8 @@ Add NmeaObjectMonitorActor (com.frankwu.nmea)
     tested by FileDataSourceActorTest and other *Actor*Test, log shows
         monitor objects receives objects, log example:
         2015-05-13 16:16:44,231  INFO [NmeaObjectMonitorActor.MonitorThread] c.f.n.NmeaObjectMonitorActor$MonitorThread - monitor receive: GgaNmeaObject{type=GPGGA, ...
+    tested by "mvn spring-boot:run", log shows
+        monitor objects receives objects from multiple CodecManagerActor
 
 Integrate NmeaObjectMonitorActor into NmeaApplication
         NmeaApplication (ActorSystem)
