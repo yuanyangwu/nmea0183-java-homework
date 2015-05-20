@@ -79,7 +79,8 @@ public class NmeaObjectMonitorActor extends UntypedActor {
         @Override
         public void run() {
             ZMQ.Context zmqContext = ZMQ.context(1);
-            ZMQ.Socket socket = zmqContext.socket(ZMQ.PULL);
+            ZMQ.Socket socket = zmqContext.socket(ZMQ.SUB);
+            socket.subscribe("".getBytes());
             ZMQ.Poller poller = new ZMQ.Poller(1);
             try {
                 socket.bind(actor.getAddress());

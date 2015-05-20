@@ -32,11 +32,11 @@ Integrate NmeaObjectMonitorActor into NmeaApplication
                 +------ nmeaObjectMonitor(NmeaObjectMonitorActor, monitor ZMQ address: monitorAddress)
 
 ZeroMQ connects all CodecManagerActor to 1 NmeaObjectMonitorActor
-        CodecManagerActor(PUSH) ------+
-                                      |
-        CodecManagerActor(PUSH) ------+------ (PULL)NmeaObjectMonitorActor
-                                      |
-        CodecManagerActor(PUSH) ------+
+        CodecManagerActor(PUB,connect) ------+
+                                             |
+        CodecManagerActor(PUB,connect) ------+------ (bind,SUB)NmeaObjectMonitorActor
+                                             |
+        CodecManagerActor(PUB,connect) ------+
 
 ZeroMQ usage tips
     PUSH socket sends packet in NOBLOCK

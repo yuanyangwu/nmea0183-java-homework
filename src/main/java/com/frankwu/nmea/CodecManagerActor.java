@@ -41,7 +41,7 @@ public class CodecManagerActor extends UntypedActor implements Observer {
     public void preStart() throws Exception {
         envelop = getSelf().path().toString();
         zmqContext = ZMQ.context(1);
-        socket = zmqContext.socket(ZMQ.PUSH);
+        socket = zmqContext.socket(ZMQ.PUB);
         socket.connect(monitorAddress);
         codecManager.addObserver(this);
     }
