@@ -6,6 +6,7 @@ import com.frankwu.nmea.datasource.FileDataSourceActor;
 import com.frankwu.nmea.datasource.NettyTcpClientDataSourceActor;
 import com.frankwu.nmea.datasource.NettyTcpServerDataSourceActor;
 import com.frankwu.nmea.datasource.TcpDataSourceActor;
+import com.frankwu.nmea.protobuf.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -96,6 +97,18 @@ public class NmeaApplication {
     @Bean
     public String monitorAddress() {
         return "tcp://localhost:5681";
+    }
+
+    @Bean
+    public ProtobufCodecManager protobufCodecManager() {
+        Map<String, AbstractProtobufCodec> codecs = new HashMap<>();
+        codecs.put("GGA", new GgaProtobufCodec());
+        codecs.put("GLL", new GllProtobufCodec());
+        codecs.put("GSV", new GsvProtobufCodec());
+        codecs.put("RMC", new RmcProtobufCodec());
+        codecs.put("VDM", new VdmProtobufCodec());
+
+        return new ProtobufCodecManager(codecs);
     }
 
     private static ActorSystem createActorSystem(ApplicationContext context) {

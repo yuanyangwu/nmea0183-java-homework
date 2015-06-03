@@ -30,6 +30,29 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.directory}/generated-sources/protobuf" />
+                                <exec executable="protoc">
+                                    <arg value="--java_out=${project.build.directory}/generated-sources/protobuf" />
+                                    <arg value="--proto_path=${project.basedir}/src/main/java/com/frankwu/nmea/protobuf" />
+                                    <arg value="${project.basedir}/src/main/java/com/frankwu/nmea/protobuf/NmeaObjects.proto" />
+                                </exec>
+                            </tasks>
+                            <sourceRoot>${project.build.directory}/generated-sources/protobuf</sourceRoot>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -73,6 +96,11 @@
             <groupId>org.zeromq</groupId>
             <artifactId>jeromq</artifactId>
             <version>0.3.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>2.6.1</version>
         </dependency>
     </dependencies>
 </project>

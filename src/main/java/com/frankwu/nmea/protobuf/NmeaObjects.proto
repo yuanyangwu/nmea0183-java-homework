@@ -1,0 +1,113 @@
+package com.frankwu.nmea.protobuf;
+
+option java_package = "com.frankwu.nmea.protobuf";
+option java_outer_classname = "NmeaObjects";
+
+message NmeaObject {
+    oneof object {
+        GgaObject ggaObject = 1;
+        GllObject gllObject = 2;
+        GsvObject gsvObject = 3;
+        RmcObject rmcObject = 4;
+        VdmObject vdmObject = 5;
+    }
+}
+
+message GgaObject {
+    optional string utcTime = 1;
+    optional string latitude = 2;
+    optional string directionOfLatitude = 3;
+    optional string longitude = 4;
+    optional string directionOfLongitude = 5;
+    optional string gpsQualityIndicator = 6;
+    optional string numberOfSVs = 7;
+    optional string hdop = 8;
+    optional string orthometricHeight = 9;
+    optional string unitOfOrthometricHeight = 10;
+    optional string geoidSeparation = 11;
+    optional string unitOfGeoidSeparation = 12;
+    optional string ageOfDifferentialGpsDataRecord = 13;
+    optional string referenceStationID = 14;
+}
+
+message GllObject {
+    optional string latitude = 1;
+    optional string directionOfLatitude = 2;
+    optional string longitude = 3;
+    optional string directionOfLongitude = 4;
+    optional string utcTime = 5;
+    optional string dataValid = 6;
+    optional string modeIndicator = 7;
+}
+
+message GsvObject {
+    optional string totalSentenceNumber = 1;
+    optional string currentSentenceNumber = 2;
+    optional string numberOfSatellites = 3;
+    repeated GsvSatelliteDetail satelliteDetails = 4;
+}
+
+message GsvSatelliteDetail {
+    optional string prn = 1;
+    optional string elevationDegree = 2;
+    optional string azimuthDegree = 3;
+    optional string snr = 4;
+}
+
+message RmcObject {
+    optional string utcTime = 1;
+    optional string valid = 2;
+    optional string latitude = 3;
+    optional string directionOfLatitude = 4;
+    optional string longitude = 5;
+    optional string directionOfLongitude = 6;
+    optional string speedInKnot = 7;
+    optional string trackAngleInDegree = 8;
+    optional string date = 9;
+    optional string magneticVariationInDegree = 10;
+    optional string directionOfVariation = 11;
+    optional string mode = 12;
+}
+
+message VdmObject {
+    required string channel = 1;
+    oneof vdmMessage {
+        VdmMessage1 vdmMessage1 = 10;
+        VdmMessage5 vdmMessage5 = 11;
+    }
+}
+
+message VdmMessage1 {
+    optional int32 repeatIndicator = 10;
+    optional int32 userId = 11;
+    optional int32 navigationalStatus = 12;
+    optional int32 rateOfTurn = 13;
+    optional int32 sog = 14;
+    optional int32 positionAccuracy = 15;
+    optional int32 longitude = 16;
+    optional int32 latitude = 17;
+    optional int32 cog = 18;
+    optional int32 trueHeading = 19;
+    optional int32 timeStamp = 20;
+    optional int32 manoeuvreIndicator = 21;
+    optional int32 spare = 22;
+    optional int32 raimFlag = 23;
+    optional int32 communicationState = 24;
+}
+
+message VdmMessage5 {
+    optional int32 repeatIndicator = 10;
+    optional int32 userId = 11;
+    optional int32 aisVersionIndicator = 12;
+    optional int32 imoNumber = 13;
+    optional string callSign = 14;
+    optional string name = 15;
+    optional int32 shipType = 16;
+    optional int32 positionDimensionReference = 17;
+    optional int32 deviceType = 18;
+    optional int32 eta = 19;
+    optional int32 maxPresentStaticDraught = 20;
+    optional string destination = 21;
+    optional int32 dte = 22;
+    optional int32 spare = 23;
+}
