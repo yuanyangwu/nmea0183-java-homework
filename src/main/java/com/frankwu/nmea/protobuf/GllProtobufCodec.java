@@ -2,6 +2,7 @@ package com.frankwu.nmea.protobuf;
 
 import com.frankwu.nmea.AbstractNmeaObject;
 import com.frankwu.nmea.GllNmeaObject;
+import com.frankwu.nmea.GllNmeaObject;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
@@ -26,6 +27,22 @@ public class GllProtobufCodec extends AbstractProtobufCodec {
                 .setDataValid(obj.dataValid)
                 .setModeIndicator(obj.modeIndicator);
         NmeaObjects.NmeaObject.newBuilder().setGllObject(builder).build().writeTo(output);
+    }
+
+    public AbstractNmeaObject decode(NmeaObjects.NmeaObject nmeaObject) throws IOException {
+        Preconditions.checkArgument(nmeaObject.hasGllObject());
+        NmeaObjects.GllObject protoObject = nmeaObject.getGllObject();
+        GllNmeaObject object = new GllNmeaObject();
+
+        object.latitude = protoObject.getLatitude();
+        object.directionOfLatitude = protoObject.getDirectionOfLatitude();
+        object.longitude = protoObject.getLongitude();
+        object.directionOfLongitude = protoObject.getDirectionOfLongitude();
+        object.utcTime = protoObject.getUtcTime();
+        object.dataValid = protoObject.getDataValid();
+        object.modeIndicator = protoObject.getModeIndicator();
+
+        return object;
     }
 }
 

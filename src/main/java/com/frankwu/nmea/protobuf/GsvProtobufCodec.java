@@ -3,10 +3,12 @@ package com.frankwu.nmea.protobuf;
 import com.frankwu.nmea.AbstractNmeaObject;
 import com.frankwu.nmea.GsvNmeaObject;
 import com.frankwu.nmea.GsvSatelliteDetail;
+import com.frankwu.nmea.GsvNmeaObject;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.LinkedList;
 
 /**
  * Created by wuf2 on 6/3/2015.
@@ -34,5 +36,26 @@ public class GsvProtobufCodec extends AbstractProtobufCodec {
         }
 
         NmeaObjects.NmeaObject.newBuilder().setGsvObject(builder).build().writeTo(output);
+    }
+
+    public AbstractNmeaObject decode(NmeaObjects.NmeaObject nmeaObject) throws IOException {
+        Preconditions.checkArgument(nmeaObject.hasGsvObject());
+        NmeaObjects.GsvObject protoObject = nmeaObject.getGsvObject();
+        GsvNmeaObject object = new GsvNmeaObject();
+
+        object.totalSentenceNumber = protoObject.getTotalSentenceNumber();
+        object.currentSentenceNumber = protoObject.getCurrentSentenceNumber();
+        object.numberOfSatellites = protoObject.getNumberOfSatellites();
+        object.satelliteDetails = new LinkedList<>();
+        for (NmeaObjects.GsvSatelliteDetail protoDetail : protoObject.getSatelliteDetailsList()) {
+            GsvSatelliteDetail detail = new GsvSatelliteDetail();
+            detail.prn = protoDetail.getPrn();
+            detail.elevationDegree = protoDetail.getElevationDegree();
+            detail.azimuthDegree = protoDetail.getAzimuthDegree();
+            detail.snr = protoDetail.getSnr();
+            object.satelliteDetails.add(detail);
+        }
+
+        return object;
     }
 }

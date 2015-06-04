@@ -6,6 +6,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import com.frankwu.nmea.protobuf.NmeaObjects;
+import com.frankwu.nmea.protobuf.ProtobufCodecManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
@@ -18,21 +19,27 @@ import java.io.ObjectInputStream;
  */
 public class NmeaObjectMonitorActor extends UntypedActor {
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
+    private final ProtobufCodecManager protobufCodecManager;
     private final String address;
     private boolean running = false;
     private Thread monitorThread;
 
-    public NmeaObjectMonitorActor(String address) {
+    public NmeaObjectMonitorActor(ProtobufCodecManager protobufCodecManager, String address) {
         this.address = address;
+        this.protobufCodecManager = protobufCodecManager;
     }
 
-    public static Props props(String address) {
+    public static Props props(ProtobufCodecManager protobufCodecManager, String address) {
         return Props.create(new Creator<NmeaObjectMonitorActor>() {
             @Override
             public NmeaObjectMonitorActor create() throws Exception {
-                return new NmeaObjectMonitorActor(address);
+                return new NmeaObjectMonitorActor(protobufCodecManager, address);
             }
         });
+    }
+
+    public ProtobufCodecManager getProtobufCodecManager() {
+        return protobufCodecManager;
     }
 
     public String getAddress() {
@@ -99,7 +106,7 @@ public class NmeaObjectMonitorActor extends UntypedActor {
                     //Object object = objectInputStream.readObject();
 
                     // Protobuf serialization
-                    NmeaObjects.NmeaObject object = NmeaObjects.NmeaObject.parseFrom(byteArrayInputStream);
+                    AbstractNmeaObject object = actor.getProtobufCodecManager().decode(byteArrayInputStream);
 
                     logger.info("monitor receive: {}", object);
                 }

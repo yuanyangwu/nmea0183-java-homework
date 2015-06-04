@@ -114,10 +114,10 @@ public class NmeaApplication {
     private static ActorSystem createActorSystem(ApplicationContext context) {
         ActorSystem system = ActorSystem.create("NmeaApplication");
 
-        String monitorAddress = (String) context.getBean("monitorAddress");
-        final ActorRef nmeaObjectMonitorActorRef = system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
-
         ProtobufCodecManager protobufCodecManager = (ProtobufCodecManager) context.getBean("protobufCodecManager");
+
+        String monitorAddress = (String) context.getBean("monitorAddress");
+        final ActorRef nmeaObjectMonitorActorRef = system.actorOf(NmeaObjectMonitorActor.props(protobufCodecManager, monitorAddress), "nmeaObjectMonitor");
 
         int tcpDataSourcePort = (Integer) context.getBean("tcpDataSourcePort");
         CodecManager tcpCodecManager = (CodecManager) context.getBean("tcpCodecManager");

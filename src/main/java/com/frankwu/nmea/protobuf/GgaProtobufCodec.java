@@ -5,6 +5,7 @@ import com.frankwu.nmea.GgaNmeaObject;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -33,5 +34,28 @@ public class GgaProtobufCodec extends AbstractProtobufCodec {
                 .setAgeOfDifferentialGpsDataRecord(obj.ageOfDifferentialGpsDataRecord)
                 .setReferenceStationID(obj.referenceStationID);
         NmeaObjects.NmeaObject.newBuilder().setGgaObject(builder).build().writeTo(output);
+    }
+
+    public AbstractNmeaObject decode(NmeaObjects.NmeaObject nmeaObject) throws IOException {
+        Preconditions.checkArgument(nmeaObject.hasGgaObject());
+        NmeaObjects.GgaObject protoObject = nmeaObject.getGgaObject();
+        GgaNmeaObject object = new GgaNmeaObject();
+
+        object.utcTime = protoObject.getUtcTime();
+        object.latitude = protoObject.getLatitude();
+        object.directionOfLatitude = protoObject.getDirectionOfLatitude();
+        object.longitude = protoObject.getLongitude();
+        object.directionOfLongitude = protoObject.getDirectionOfLongitude();
+        object.gpsQualityIndicator = protoObject.getGpsQualityIndicator();
+        object.numberOfSVs = protoObject.getNumberOfSVs();
+        object.hdop = protoObject.getHdop();
+        object.orthometricHeight = protoObject.getOrthometricHeight();
+        object.unitOfOrthometricHeight = protoObject.getUnitOfOrthometricHeight();
+        object.geoidSeparation = protoObject.getGeoidSeparation();
+        object.unitOfGeoidSeparation = protoObject.getUnitOfGeoidSeparation();
+        object.ageOfDifferentialGpsDataRecord = protoObject.getAgeOfDifferentialGpsDataRecord();
+        object.referenceStationID = protoObject.getReferenceStationID();
+
+        return object;
     }
 }

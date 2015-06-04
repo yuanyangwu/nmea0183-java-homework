@@ -1,9 +1,6 @@
 package com.frankwu.nmea.protobuf;
 
-import com.frankwu.nmea.AbstractNmeaObject;
-import com.frankwu.nmea.VdmNmeaMessage1;
-import com.frankwu.nmea.VdmNmeaMessage5;
-import com.frankwu.nmea.VdmNmeaObject;
+import com.frankwu.nmea.*;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
@@ -62,5 +59,57 @@ public class VdmProtobufCodec extends AbstractProtobufCodec {
             Preconditions.checkArgument(false, "unsupported message type");
         }
         NmeaObjects.NmeaObject.newBuilder().setVdmObject(builder).build().writeTo(output);
+    }
+
+
+    public AbstractNmeaObject decode(NmeaObjects.NmeaObject nmeaObject) throws IOException {
+        Preconditions.checkArgument(nmeaObject.hasVdmObject());
+        NmeaObjects.VdmObject protoObject = nmeaObject.getVdmObject();
+        VdmNmeaObject object = new VdmNmeaObject();
+
+        object.setChannel(protoObject.getChannel());
+        if (protoObject.getVdmMessageCase() == NmeaObjects.VdmObject.VdmMessageCase.VDMMESSAGE1) {
+            NmeaObjects.VdmMessage1 protoMsg = protoObject.getVdmMessage1();
+            VdmNmeaMessage1 msg = new VdmNmeaMessage1();
+            object.setMessage(msg);
+
+            msg.repeatIndicator = protoMsg.getRepeatIndicator();
+            msg.userId = protoMsg.getUserId();
+            msg.navigationalStatus = protoMsg.getNavigationalStatus();
+            msg.rateOfTurn = protoMsg.getRateOfTurn();
+            msg.sog = protoMsg.getSog();
+            msg.positionAccuracy = protoMsg.getPositionAccuracy();
+            msg.longitude = protoMsg.getLongitude();
+            msg.latitude = protoMsg.getLatitude();
+            msg.cog = protoMsg.getCog();
+            msg.trueHeading = protoMsg.getTrueHeading();
+            msg.timeStamp = protoMsg.getTimeStamp();
+            msg.manoeuvreIndicator = protoMsg.getManoeuvreIndicator();
+            msg.spare = protoMsg.getSpare();
+            msg.raimFlag = protoMsg.getRaimFlag();
+            msg.communicationState = protoMsg.getCommunicationState();
+        } else if (protoObject.getVdmMessageCase() == NmeaObjects.VdmObject.VdmMessageCase.VDMMESSAGE5) {
+            NmeaObjects.VdmMessage5 protoMsg = protoObject.getVdmMessage5();
+            VdmNmeaMessage5 msg = new VdmNmeaMessage5();
+            object.setMessage(msg);
+
+            msg.repeatIndicator = protoMsg.getRepeatIndicator();
+            msg.userId = protoMsg.getUserId();
+            msg.aisVersionIndicator = protoMsg.getAisVersionIndicator();
+            msg.imoNumber = protoMsg.getImoNumber();
+            msg.callSign = protoMsg.getCallSign();
+            msg.name = protoMsg.getName();
+            msg.shipType = protoMsg.getShipType();
+            msg.positionDimensionReference = protoMsg.getPositionDimensionReference();
+            msg.deviceType = protoMsg.getDeviceType();
+            msg.eta = protoMsg.getEta();
+            msg.maxPresentStaticDraught = protoMsg.getMaxPresentStaticDraught();
+            msg.destination = protoMsg.getDestination();
+            msg.dte = protoMsg.getDte();
+            msg.spare = protoMsg.getSpare();
+        } else {
+            Preconditions.checkArgument(false, "unsupported message type");
+        }
+        return object;
     }
 }

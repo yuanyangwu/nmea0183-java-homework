@@ -10,4 +10,5 @@ import java.io.OutputStream;
  */
 public abstract class AbstractProtobufCodec {
     public abstract void encode(AbstractNmeaObject object, OutputStream output) throws IOException;
+    public abstract AbstractNmeaObject decode(NmeaObjects.NmeaObject nmeaObject) throws IOException;
 }

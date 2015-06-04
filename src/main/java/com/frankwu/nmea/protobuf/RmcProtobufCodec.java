@@ -2,6 +2,7 @@ package com.frankwu.nmea.protobuf;
 
 import com.frankwu.nmea.AbstractNmeaObject;
 import com.frankwu.nmea.RmcNmeaObject;
+import com.frankwu.nmea.RmcNmeaObject;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
@@ -32,5 +33,25 @@ public class RmcProtobufCodec extends AbstractProtobufCodec {
                 .setMode(obj.mode);
         NmeaObjects.NmeaObject.newBuilder().setRmcObject(builder).build().writeTo(output);
     }
-}
 
+    public AbstractNmeaObject decode(NmeaObjects.NmeaObject nmeaObject) throws IOException {
+        Preconditions.checkArgument(nmeaObject.hasRmcObject());
+        NmeaObjects.RmcObject protoObject = nmeaObject.getRmcObject();
+        RmcNmeaObject object = new RmcNmeaObject();
+
+        object.utcTime = protoObject.getUtcTime();
+        object.valid = protoObject.getValid();
+        object.latitude = protoObject.getLatitude();
+        object.directionOfLatitude = protoObject.getDirectionOfLatitude();
+        object.longitude = protoObject.getLongitude();
+        object.directionOfLongitude = protoObject.getDirectionOfLongitude();
+        object.speedInKnot = protoObject.getSpeedInKnot();
+        object.trackAngleInDegree = protoObject.getTrackAngleInDegree();
+        object.date = protoObject.getDate();
+        object.magneticVariationInDegree = protoObject.getMagneticVariationInDegree();
+        object.directionOfVariation = protoObject.getDirectionOfVariation();
+        object.mode = protoObject.getMode();
+
+        return object;
+    }
+}
