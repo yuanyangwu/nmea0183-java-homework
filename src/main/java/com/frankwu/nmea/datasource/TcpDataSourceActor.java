@@ -7,6 +7,7 @@ import akka.japi.Creator;
 import akka.japi.Function;
 import com.frankwu.nmea.CodecManager;
 import com.frankwu.nmea.CodecManagerActor;
+import com.frankwu.nmea.protobuf.ProtobufCodecManager;
 import com.google.common.base.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,17 +41,17 @@ public class TcpDataSourceActor extends UntypedActor {
         }
     });
 
-    public TcpDataSourceActor(int port, CodecManager codecManager, String monitorAddress) {
+    public TcpDataSourceActor(int port, CodecManager codecManager, ProtobufCodecManager protobufCodecManager, String monitorAddress) {
         this.port = port;
         this.codecManager = codecManager;
-        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager, monitorAddress), "codecManager");
+        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager, protobufCodecManager, monitorAddress), "codecManager");
     }
 
-    public static Props props(int port, CodecManager codecManager, String monitorAddress) {
+    public static Props props(int port, CodecManager codecManager, ProtobufCodecManager protobufCodecManager, String monitorAddress) {
         return Props.create(new Creator<TcpDataSourceActor>() {
             @Override
             public TcpDataSourceActor create() throws Exception {
-                return new TcpDataSourceActor(port, codecManager, monitorAddress);
+                return new TcpDataSourceActor(port, codecManager, protobufCodecManager, monitorAddress);
             }
         });
     }

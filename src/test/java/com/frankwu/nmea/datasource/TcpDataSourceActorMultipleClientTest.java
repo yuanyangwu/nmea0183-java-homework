@@ -6,6 +6,7 @@ import akka.testkit.JavaTestKit;
 import com.frankwu.nmea.CodecManager;
 import com.frankwu.nmea.NmeaApplication;
 import com.frankwu.nmea.NmeaObjectMonitorActor;
+import com.frankwu.nmea.protobuf.ProtobufCodecManager;
 import com.frankwu.nmea.testing.CountingObserver;
 import org.junit.After;
 import org.junit.Before;
@@ -33,6 +34,9 @@ public class TcpDataSourceActorMultipleClientTest {
     private String monitorAddress;
 
     @Autowired
+    private ProtobufCodecManager protobufCodecManager;
+
+    @Autowired
     private CodecManager tcpCodecManager;
 
     @Autowired
@@ -52,7 +56,7 @@ public class TcpDataSourceActorMultipleClientTest {
         system = ActorSystem.create("TcpDataSourceActorMultipleClientTest");
         system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
         final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(
-                tcpDataSourcePort, tcpCodecManager, monitorAddress), "tcpDataSource");
+                tcpDataSourcePort, tcpCodecManager, protobufCodecManager, monitorAddress), "tcpDataSource");
 
         try {
             Thread.sleep(TIMEOUT);

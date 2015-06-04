@@ -5,6 +5,7 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import com.frankwu.nmea.protobuf.NmeaObjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
@@ -92,8 +93,14 @@ public class NmeaObjectMonitorActor extends UntypedActor {
                     }
                     byte[] bytes = socket.recv(0);
                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-                    ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-                    Object object = objectInputStream.readObject();
+
+                    // Java serialization
+                    //ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+                    //Object object = objectInputStream.readObject();
+
+                    // Protobuf serialization
+                    NmeaObjects.NmeaObject object = NmeaObjects.NmeaObject.parseFrom(byteArrayInputStream);
+
                     logger.info("monitor receive: {}", object);
                 }
                 logger.debug("monitor gracefully shut down");

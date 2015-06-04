@@ -5,6 +5,7 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import com.frankwu.nmea.protobuf.ProtobufCodecManager;
 import org.zeromq.ZMQ;
 
 import java.io.ByteArrayOutputStream;
@@ -18,21 +19,23 @@ import java.util.Observer;
 public class CodecManagerActor extends UntypedActor implements Observer {
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
     private final CodecManager codecManager;
+    private final ProtobufCodecManager protobufCodecManager;
     private final String monitorAddress;
     private String envelop;
     private ZMQ.Context zmqContext;
     private ZMQ.Socket socket;
 
-    public CodecManagerActor(CodecManager codecManager, String monitorAddress) {
+    public CodecManagerActor(CodecManager codecManager, ProtobufCodecManager protobufCodecManager, String monitorAddress) {
         this.codecManager = codecManager;
+        this.protobufCodecManager = protobufCodecManager;
         this.monitorAddress = monitorAddress;
     }
 
-    public static Props props(CodecManager codecManager, String monitorAddress) {
+    public static Props props(CodecManager codecManager, ProtobufCodecManager protobufCodecManager, String monitorAddress) {
         return Props.create(new Creator<CodecManagerActor>() {
             @Override
             public CodecManagerActor create() throws Exception {
-                return new CodecManagerActor(codecManager, monitorAddress);
+                return new CodecManagerActor(codecManager, protobufCodecManager, monitorAddress);
             }
         });
     }
@@ -72,9 +75,15 @@ public class CodecManagerActor extends UntypedActor implements Observer {
         logger.debug("Observer receive {}", arg);
         try {
             if (arg instanceof AbstractNmeaObject) {
+                AbstractNmeaObject object = (AbstractNmeaObject)arg;
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-                objectOutputStream.writeObject(arg);
+
+                // Java serialization
+                //ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+                //objectOutputStream.writeObject(object);
+
+                // Protobuf serialization
+                protobufCodecManager.encode(object, byteArrayOutputStream);
                 byte[] bytes = byteArrayOutputStream.toByteArray();
 
                 // send in NOBLOCK in case that receiver is not listening

@@ -7,6 +7,7 @@ import akka.japi.Creator;
 import akka.japi.Function;
 import com.frankwu.nmea.CodecManager;
 import com.frankwu.nmea.CodecManagerActor;
+import com.frankwu.nmea.protobuf.ProtobufCodecManager;
 import com.google.common.base.Charsets;
 import scala.concurrent.duration.Duration;
 
@@ -32,16 +33,16 @@ public class FileDataSourceActor extends UntypedActor {
         }
     });
 
-    public FileDataSourceActor(Path filePath, CodecManager codecManager, String monitorAddress) {
+    public FileDataSourceActor(Path filePath, CodecManager codecManager, ProtobufCodecManager protobufCodecManager, String monitorAddress) {
         this.filePath = filePath;
-        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager, monitorAddress), "codecManager");
+        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager, protobufCodecManager, monitorAddress), "codecManager");
     }
 
-    public static Props props(Path filePath, CodecManager codecManager, String monitorAddress) {
+    public static Props props(Path filePath, CodecManager codecManager, ProtobufCodecManager protobufCodecManager, String monitorAddress) {
         return Props.create(new Creator<FileDataSourceActor>() {
             @Override
             public FileDataSourceActor create() throws Exception {
-                return new FileDataSourceActor(filePath, codecManager, monitorAddress);
+                return new FileDataSourceActor(filePath, codecManager, protobufCodecManager, monitorAddress);
             }
         });
     }

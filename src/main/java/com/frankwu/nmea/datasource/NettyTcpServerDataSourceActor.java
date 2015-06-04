@@ -7,6 +7,7 @@ import akka.japi.Creator;
 import akka.japi.Function;
 import com.frankwu.nmea.CodecManager;
 import com.frankwu.nmea.CodecManagerActor;
+import com.frankwu.nmea.protobuf.ProtobufCodecManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -38,16 +39,16 @@ public class NettyTcpServerDataSourceActor extends UntypedActor {
         }
     });
 
-    public NettyTcpServerDataSourceActor(int port, CodecManager codecManager, String monitorAddress) {
+    public NettyTcpServerDataSourceActor(int port, CodecManager codecManager, ProtobufCodecManager protobufCodecManager, String monitorAddress) {
         this.port = port;
-        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager, monitorAddress), "codecManager");
+        ActorRef codecManagerRef = getContext().actorOf(CodecManagerActor.props(codecManager, protobufCodecManager, monitorAddress), "codecManager");
     }
 
-    public static Props props(int port, CodecManager codecManager, String monitorAddress) {
+    public static Props props(int port, CodecManager codecManager, ProtobufCodecManager protobufCodecManager, String monitorAddress) {
         return Props.create(new Creator<NettyTcpServerDataSourceActor>() {
             @Override
             public NettyTcpServerDataSourceActor create() throws Exception {
-                return new NettyTcpServerDataSourceActor(port, codecManager, monitorAddress);
+                return new NettyTcpServerDataSourceActor(port, codecManager, protobufCodecManager, monitorAddress);
             }
         });
     }

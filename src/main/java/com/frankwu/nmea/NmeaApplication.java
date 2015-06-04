@@ -117,26 +117,28 @@ public class NmeaApplication {
         String monitorAddress = (String) context.getBean("monitorAddress");
         final ActorRef nmeaObjectMonitorActorRef = system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
 
+        ProtobufCodecManager protobufCodecManager = (ProtobufCodecManager) context.getBean("protobufCodecManager");
+
         int tcpDataSourcePort = (Integer) context.getBean("tcpDataSourcePort");
         CodecManager tcpCodecManager = (CodecManager) context.getBean("tcpCodecManager");
         final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(
-                tcpDataSourcePort, tcpCodecManager, monitorAddress), "tcpDataSource");
+                tcpDataSourcePort, tcpCodecManager, protobufCodecManager, monitorAddress), "tcpDataSource");
 
         CodecManager fileCodecManager = (CodecManager) context.getBean("fileCodecManager");
         final ActorRef fileDataSourceActorRef = system.actorOf(FileDataSourceActor.props(
-                Paths.get("doc/sample.txt"), fileCodecManager, monitorAddress), "fileDataSource");
+                Paths.get("doc/sample.txt"), fileCodecManager, protobufCodecManager, monitorAddress), "fileDataSource");
         fileDataSourceActorRef.tell("start", ActorRef.noSender());
 
         int nettyTcpServerDataSourcePort = (Integer) context.getBean("nettyTcpServerDataSourcePort");
         CodecManager nettyTcpServerCodecManager = (CodecManager) context.getBean("nettyTcpServerCodecManager");
         final ActorRef nettyTcpServerDataSourceRef = system.actorOf(NettyTcpServerDataSourceActor.props(
-                nettyTcpServerDataSourcePort, nettyTcpServerCodecManager, monitorAddress), "nettyTcpServerDataSource");
+                nettyTcpServerDataSourcePort, nettyTcpServerCodecManager, protobufCodecManager, monitorAddress), "nettyTcpServerDataSource");
 
         String nettyTcpClientDataSourceTargetHost = (String) context.getBean("nettyTcpClientDataSourceTargetHost");
         int nettyTcpClientDataSourceTargetPort = (Integer) context.getBean("nettyTcpClientDataSourceTargetPort");
         CodecManager nettyTcpClientCodecManager = (CodecManager) context.getBean("nettyTcpClientCodecManager");
         final ActorRef nettyTcpClientDataSourceRef = system.actorOf(NettyTcpClientDataSourceActor.props(
-                nettyTcpClientDataSourceTargetHost, nettyTcpClientDataSourceTargetPort, nettyTcpClientCodecManager, monitorAddress), "nettyTcpClientDataSource");
+                nettyTcpClientDataSourceTargetHost, nettyTcpClientDataSourceTargetPort, nettyTcpClientCodecManager, protobufCodecManager, monitorAddress), "nettyTcpClientDataSource");
 
         return system;
     }

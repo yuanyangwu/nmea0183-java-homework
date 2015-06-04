@@ -6,6 +6,7 @@ import akka.testkit.JavaTestKit;
 import com.frankwu.nmea.CodecManager;
 import com.frankwu.nmea.NmeaApplication;
 import com.frankwu.nmea.NmeaObjectMonitorActor;
+import com.frankwu.nmea.protobuf.ProtobufCodecManager;
 import com.frankwu.nmea.testing.CountingObserver;
 import org.junit.After;
 import org.junit.Before;
@@ -28,10 +29,13 @@ public class FileDataSourceActorTest {
     private final static long TIMEOUT = 500;
 
     @Autowired
-    private CodecManager fileCodecManager;
+    private String monitorAddress;
 
     @Autowired
-    private String monitorAddress;
+    private ProtobufCodecManager protobufCodecManager;
+
+    @Autowired
+    private CodecManager fileCodecManager;
 
     private ActorSystem system;
     private ActorRef fileDataSourceActorRef;
@@ -44,7 +48,7 @@ public class FileDataSourceActorTest {
 
         system = ActorSystem.create("FileDataSourceActorTest");
         system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
-        fileDataSourceActorRef = system.actorOf(FileDataSourceActor.props(Paths.get("doc/sample.txt"), fileCodecManager, monitorAddress), "fileDataSource");
+        fileDataSourceActorRef = system.actorOf(FileDataSourceActor.props(Paths.get("doc/sample.txt"), fileCodecManager, protobufCodecManager, monitorAddress), "fileDataSource");
     }
 
     @After
