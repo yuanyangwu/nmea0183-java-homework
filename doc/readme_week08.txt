@@ -1,14 +1,19 @@
 Achievement
 =================
+Add ProtobufCodecManager (com.frankwu.nmea.protobuf)
+    define proto in NmeaObjects.proto
+    encode AbstractNmeaObject to output stream in protobuf
+    decode AbstractNmeaObject from input stream in protobuf
 CodecManagerActor (com.frankwu.nmea)
-    send decoded nmea objects via ZeroMQ in JAVA serialization
-Add NmeaObjectMonitorActor (com.frankwu.nmea)
-    receive nmea objects via ZeroMQ in JAVA serialization
-    tested by FileDataSourceActorTest and other *Actor*Test, log shows
+    send decoded nmea objects via ZeroMQ in protobuf serialization
+NmeaObjectMonitorActor (com.frankwu.nmea)
+    receive nmea objects via ZeroMQ in protobuf serialization
+    tested by FileDataSourceActorTest, log shows
         monitor objects receives objects, log example:
-        2015-05-13 16:16:44,231  INFO [NmeaObjectMonitorActor.MonitorThread] c.f.n.NmeaObjectMonitorActor$MonitorThread - monitor receive: GgaNmeaObject{type=GPGGA, ...
+        2015-06-04 15:00:03,310  INFO [NmeaObjectMonitorActor.MonitorThread] c.f.n.NmeaObjectMonitorActor$MonitorThread:111 - monitor receive: RmcNmeaObject{type=RMC, utcTime=123519, valid=A, latitude=4807.038, directionOfLatitude=N, longitude=01131.000, directionOfLongitude=E, speedInKnot=022.4, trackAngleInDegree=084.4, date=230394, magneticVariationInDegree=003.1, directionOfVariation=W, mode=}
     tested by "mvn spring-boot:run", log shows
         monitor objects receives objects from multiple CodecManagerActor
+        2015-06-04 15:01:04.876  INFO 9644 --- [r.MonitorThread] f.n.NmeaObjectMonitorActor$MonitorThread : monitor receive: RmcNmeaObject{type=RMC, utcTime=123519, valid=A, latitude=4807.038, directionOfLatitude=N, longitude=01131.000, directionOfLongitude=E, speedInKnot=022.4, trackAngleInDegree=084.4, date=230394, magneticVariationInDegree=003.1, directionOfVariation=W, mode=}
 
 Integrate NmeaObjectMonitorActor into NmeaApplication
         NmeaApplication (ActorSystem)
@@ -62,4 +67,4 @@ Test instruction
 mvn clean test
 
 Results :
-Tests run: 64, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 70, Failures: 0, Errors: 0, Skipped: 0
