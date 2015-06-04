@@ -53,7 +53,7 @@ public class NettyTcpServerDataSourceActorSingleClientTest {
         nettyTcpServerCodecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("NettyTcpServerDataSourceActorSingleClientTest");
-        system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
+        system.actorOf(NmeaObjectMonitorActor.props(protobufCodecManager, monitorAddress), "nmeaObjectMonitor");
         final ActorRef nettyTcpServerDataSourceRef = system.actorOf(NettyTcpServerDataSourceActor.props(
                 nettyTcpServerDataSourcePort, nettyTcpServerCodecManager, protobufCodecManager, monitorAddress), "nettyTcpServerDataSource");
 

@@ -54,7 +54,7 @@ public class NettyTcpServerDataSourceActorMultipleClientTest {
         nettyTcpServerCodecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("NettyTcpServerDataSourceActorMultipleClientTest");
-        system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
+        system.actorOf(NmeaObjectMonitorActor.props(protobufCodecManager, monitorAddress), "nmeaObjectMonitor");
         final ActorRef nettyTcpServerDataSourceRef = system.actorOf(NettyTcpServerDataSourceActor.props(
                 nettyTcpServerDataSourcePort, nettyTcpServerCodecManager, protobufCodecManager, monitorAddress), "nettyTcpServerDataSource");
 

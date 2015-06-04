@@ -54,7 +54,7 @@ public class TcpDataSourceActorMultipleClientTest {
         tcpCodecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("TcpDataSourceActorMultipleClientTest");
-        system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
+        system.actorOf(NmeaObjectMonitorActor.props(protobufCodecManager, monitorAddress), "nmeaObjectMonitor");
         final ActorRef tcpDataSourceRef = system.actorOf(TcpDataSourceActor.props(
                 tcpDataSourcePort, tcpCodecManager, protobufCodecManager, monitorAddress), "tcpDataSource");
 

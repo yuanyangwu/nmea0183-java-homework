@@ -47,7 +47,7 @@ public class FileDataSourceActorTest {
         fileCodecManager.addObserver(countingObserver);
 
         system = ActorSystem.create("FileDataSourceActorTest");
-        system.actorOf(NmeaObjectMonitorActor.props(monitorAddress), "nmeaObjectMonitor");
+        system.actorOf(NmeaObjectMonitorActor.props(protobufCodecManager, monitorAddress), "nmeaObjectMonitor");
         fileDataSourceActorRef = system.actorOf(FileDataSourceActor.props(Paths.get("doc/sample.txt"), fileCodecManager, protobufCodecManager, monitorAddress), "fileDataSource");
     }
 
