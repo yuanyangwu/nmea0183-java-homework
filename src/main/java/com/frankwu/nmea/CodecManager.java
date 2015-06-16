@@ -1,6 +1,9 @@
 package com.frankwu.nmea;
 
+import com.frankwu.nmea.disruptor.EventHolder;
 import com.google.common.base.Preconditions;
+import com.lmax.disruptor.EventTranslatorOneArg;
+import com.lmax.disruptor.RingBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +18,21 @@ public class CodecManager extends Observable implements Observer {
     private final Logger logger = LoggerFactory.getLogger(CodecManager.class);
     private CodecFactory codecFactory;
     private Buffer buffer = new Buffer();
+    private RingBuffer<EventHolder> ringBuffer;
+    private EventTranslatorOneArg<EventHolder, AbstractNmeaObject> TRANSLATOR = new EventTranslatorOneArg<EventHolder, AbstractNmeaObject>() {
+        public void translateTo(EventHolder holder, long arg1, AbstractNmeaObject event)
+        {
+            holder.event = event;
+        }
+    };
 
     public CodecManager(CodecFactory codecFactory) {
         this.codecFactory = codecFactory;
         this.codecFactory.addObserver(this);
+    }
+
+    public void setRingBuffer(RingBuffer<EventHolder> ringBuffer) {
+        this.ringBuffer = ringBuffer;
     }
 
     public void  decode(String content) throws Exception {
@@ -59,5 +73,11 @@ public class CodecManager extends Observable implements Observer {
         logger.debug("parsed object: " + arg);
         setChanged();
         notifyObservers(arg);
+
+        // make local copy to avoid race condition between if and publishEvent
+        RingBuffer<EventHolder> buffer = ringBuffer;
+        if (buffer != null) {
+            buffer.publishEvent(TRANSLATOR, (AbstractNmeaObject)arg);
+        }
     }
 }

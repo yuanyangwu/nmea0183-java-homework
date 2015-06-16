@@ -5,20 +5,25 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import com.frankwu.nmea.disruptor.EventHolder;
+import com.frankwu.nmea.disruptor.EventHolderHandler;
 import com.frankwu.nmea.protobuf.ProtobufCodecManager;
+import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.YieldingWaitStrategy;
 import org.zeromq.ZMQ;
 
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Created by wuf2 on 4/15/2015.
  */
-public class CodecManagerActor extends UntypedActor implements Observer {
+public class CodecManagerActor extends UntypedActor implements EventHandler<AbstractNmeaObject> {
     private final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
     private final CodecManager codecManager;
+    private BatchEventProcessor<EventHolder> batchEventProcessor;
+    private Thread batchEventProcessorThread;
     private final ProtobufCodecManager protobufCodecManager;
     private final String monitorAddress;
     private String envelop;
@@ -46,12 +51,26 @@ public class CodecManagerActor extends UntypedActor implements Observer {
         zmqContext = ZMQ.context(1);
         socket = zmqContext.socket(ZMQ.PUB);
         socket.connect(monitorAddress);
-        codecManager.addObserver(this);
+
+        RingBuffer<EventHolder> ringBuffer = RingBuffer.createSingleProducer(EventHolder.factory, 1024, new YieldingWaitStrategy());
+        EventHolderHandler eventHolderHandler = new EventHolderHandler(this);
+        batchEventProcessor = new BatchEventProcessor<EventHolder>(
+                ringBuffer,
+                ringBuffer.newBarrier(),
+                eventHolderHandler
+        );
+        ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
+        batchEventProcessorThread = new Thread(batchEventProcessor);
+        batchEventProcessorThread.start();
+        codecManager.setRingBuffer(ringBuffer);
     }
 
     @Override
     public void postStop() throws Exception {
-        codecManager.deleteObserver(this);
+        batchEventProcessor.halt();
+        batchEventProcessorThread.join();
+        codecManager.setRingBuffer(null);
+
         // if monitor Actor is down or disconnected, pending packets can block socket.close()
         // discard pending packets with ZMQ_LINGER = 0
         socket.setLinger(0);
@@ -71,11 +90,11 @@ public class CodecManagerActor extends UntypedActor implements Observer {
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        logger.debug("Observer receive {}", arg);
+    public void onEvent(AbstractNmeaObject event, long sequence, boolean endOfBatch) throws Exception {
+        logger.debug("Disruptor receive {}", event);
         try {
-            if (arg instanceof AbstractNmeaObject) {
-                AbstractNmeaObject object = (AbstractNmeaObject)arg;
+            if (event instanceof AbstractNmeaObject) {
+                AbstractNmeaObject object = (AbstractNmeaObject) event;
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
                 // Java serialization
